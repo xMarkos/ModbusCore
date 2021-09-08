@@ -1,0 +1,31 @@
+<Project>
+	<PropertyGroup>
+		<!--
+			AssemblyVersion: The version of the assembly as loaded by CLR; any minor difference
+							  will cause runtime errors -> keep it without build number (only 3 parts)
+			FileVersion:     The uniquely identified version of the build; includes the build version passed in by the CI
+			PackageVersion:  The version of NuGet package; includes the build version passed in by the CI
+			Version:         Used in the dialog of visual studio in place of "package version" field; normalized to 3 parts
+		
+			Note: Make sure to not overwrite FileVersion or PackageVersion property - these are derived from AssemblyVersion
+		-->
+		<Major>$([System.Version]::Parse($(Version)).Major)</Major>
+		<Minor>$([System.Version]::Parse($(Version)).Minor)</Minor>
+		<Build>$([System.Version]::Parse($(Version)).Build)</Build>
+		<Build Condition="$(Build) == -1">0</Build>
+
+		<Revision>0</Revision>
+
+		<Version>$(Major).$(Minor).$(Build)</Version>
+		<AssemblyVersion>$(Version)</AssemblyVersion>
+		<FileVersion>$(AssemblyVersion).$(Revision)</FileVersion>
+		<PackageVersion>$(FileVersion)</PackageVersion>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(IsTestProject)' != 'true'">
+		<DocumentationFile>$(OutputPath)$(AssemblyName).xml</DocumentationFile>
+		<NoWarn>$(NoWarn);1573;1591</NoWarn>
+	</PropertyGroup>
+	<Target Name="VSTestIfTestProject">
+		<CallTarget Targets="VSTest" Condition="'$(IsTestProject)' == 'true'" />
+	</Target>
+</Project>

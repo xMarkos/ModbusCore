@@ -21,31 +21,32 @@ namespace ModbusCore.Devices
                 new ReadRegistersRequestParser(),
             };
 
-            var sender = new SerialRtuModbusDevice(
-                new SerialRtuModbusDeviceConfiguration
-                {
-                    BaudRate = 9600,
-                    Parity = Parity.Even,
-                    PortName = "COM4",
-                }, context, parsers, null);
+            IModbusMessage? actualMessage = null;
+            ModbusMessageType actualMessageType = ModbusMessageType.Unknown;
 
-            var target = new SerialRtuModbusDevice(
-                new SerialRtuModbusDeviceConfiguration
-                {
-                    BaudRate = 9600,
-                    Parity = Parity.Even,
-                    PortName = "COM3",
-                }, context, parsers, null);
-
-            IModbusMessage? receivedMessage = null;
-            ModbusMessageType receivedMessageType = ModbusMessageType.Unknown;
-
-            using (CancellationTokenSource cts = new())
             {
+                using var sender = new SerialRtuModbusDevice(
+                    new SerialRtuModbusDeviceConfiguration
+                    {
+                        BaudRate = 9600,
+                        Parity = Parity.Even,
+                        PortName = "COM4",
+                    }, context, parsers, null);
+
+                using var target = new SerialRtuModbusDevice(
+                    new SerialRtuModbusDeviceConfiguration
+                    {
+                        BaudRate = 9600,
+                        Parity = Parity.Even,
+                        PortName = "COM3",
+                    }, context, parsers, null);
+
+                using CancellationTokenSource cts = new();
+
                 target.MessageReceived += (object? sender, ModbusMessageReceivedEventArgs e) =>
                 {
-                    receivedMessage = e.Message;
-                    receivedMessageType = e.Type;
+                    actualMessage = e.Message;
+                    actualMessageType = e.Type;
                     cts.Cancel();
                 };
 
@@ -58,8 +59,8 @@ namespace ModbusCore.Devices
             }
 
             // Verify
-            Assert.Equal(ModbusMessageType.Request, receivedMessageType);
-            var actual = Assert.IsType<ReadRegistersRequestMessage>(receivedMessage);
+            Assert.Equal(ModbusMessageType.Request, actualMessageType);
+            var actual = Assert.IsType<ReadRegistersRequestMessage>(actualMessage);
 
             Assert.Equal(0x11, actual.Address);
             Assert.Equal(0x03, actual.Function);

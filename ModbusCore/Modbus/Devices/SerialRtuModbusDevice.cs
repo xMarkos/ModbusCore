@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ModbusCore.Devices
 {
-    public class SerialRtuModbusDevice : ModbusDeviceBase
+    public class SerialRtuModbusDevice : ModbusDeviceBase, IDisposable
     {
         private readonly MessagingContext _context;
         private readonly ICollection<IMessageParser> _parsers;
@@ -17,10 +17,12 @@ namespace ModbusCore.Devices
 
         private readonly SerialPort _port;
         private readonly SemaphoreSlim _sendLock = new(1);
+        private readonly CancellationTokenSource _cts = new();
         private readonly int _timer1_5;
         private readonly int _timer3_5;
         private long _lineIdleFrom;
-        private State _state;
+        private int _state;
+        private bool _disposed;
 
         public SerialRtuModbusDevice(SerialRtuModbusDeviceConfiguration configuration, MessagingContext context, ICollection<IMessageParser> parsers, ILogger<SerialRtuModbusDevice>? logger)
         {
@@ -51,6 +53,33 @@ namespace ModbusCore.Devices
             _port.Open();
         }
 
+        ~SerialRtuModbusDevice()
+        {
+            Dispose(false);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+
+            if (disposing)
+            {
+                _port.Dispose();
+                _sendLock.Dispose();
+            }
+
+            _cts.Dispose();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
         private static (int T1_5, int T3_5) GetSilenceTimers(int baudrate)
         {
             // Times are returned in ticks; 1 tick = 10000ms = 10us
@@ -67,12 +96,17 @@ namespace ModbusCore.Devices
 
         public override Task ReceiverLoop(CancellationToken stoppingToken)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(SerialRtuModbusDevice));
+
             return Task.Factory.StartNew(() =>
             {
                 byte[] buffer = new byte[4096];
                 int bufferIndex = 0;
 
-                while (!stoppingToken.IsCancellationRequested)
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, stoppingToken);
+
+                while (!cts.Token.IsCancellationRequested)
                 {
                     try
                     {
@@ -80,7 +114,7 @@ namespace ModbusCore.Devices
                         {
                             while (bufferIndex < count)
                             {
-                                stoppingToken.ThrowIfCancellationRequested();
+                                cts.Token.ThrowIfCancellationRequested();
                                 bufferIndex += _port.Read(buffer, bufferIndex, count - bufferIndex);
                             }
                         }
@@ -99,9 +133,9 @@ namespace ModbusCore.Devices
                             }
                         }
 
-                        ReadData(4);
-
                         _state = State.Receiving;
+
+                        ReadData(4);
 
                         // Read information necessary to obtain the length of the frame
                         Transaction transaction = new(buffer[0], buffer[1]);
@@ -122,14 +156,15 @@ namespace ModbusCore.Devices
                         // The frame is complete now
                         _lineIdleFrom = Stopwatch.GetTimestamp() + _timer3_5;
 
-                        if (ModbusUtility.CalculateCrc16(frame[..^2]) != ModbusUtility.ReadUInt16(frame[^2..]))
+                        ReadOnlySpan<byte> pdu = frame[..^2];
+                        if (ModbusUtility.CalculateCrc16(pdu) != ModbusUtility.ReadUInt16(frame[^2..]))
                             throw new IOException("Checksum of the received frame is not valid");
 
-                        IModbusMessage message = parser.Parse(frame, messageType);
+                        IModbusMessage message = parser.Parse(pdu, messageType);
 
                         OnMessageReceived(message, messageType);
                     }
-                    catch (OperationCanceledException)
+                    catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
                     {
                         _logger?.LogInformation("Cancellation was requested -> stopping receiver");
                         break;
@@ -150,7 +185,12 @@ namespace ModbusCore.Devices
 
         public override async Task Send(ReadOnlyMemory<byte> message, CancellationToken cancellationToken)
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(SerialRtuModbusDevice));
+
             // Prepare the frame
+            // [Unit][PDU][CRC16]
+            // Unit is already included in the message, CRC is 2 bytes
             byte[] frame = new byte[message.Length + 2];
             message.CopyTo(frame.AsMemory(0, message.Length));
 
@@ -162,14 +202,12 @@ namespace ModbusCore.Devices
                 {
                     SpinWait w = new();
 
-                    while (true)
+                    long mustWait;
+                    while ((mustWait = _lineIdleFrom - Stopwatch.GetTimestamp()) > 0 || _state != State.Idle)
                     {
-                        long mustWait = _lineIdleFrom - Stopwatch.GetTimestamp();
-                        if (mustWait < 0 && _state == State.Idle)
-                            break;
-
                         cancellationToken.ThrowIfCancellationRequested();
 
+                        // Only spin if we need to wait less than 1ms
                         if (mustWait > 10_000)
                         {
                             await Task.Delay((int)(mustWait / 10_000), cancellationToken).ConfigureAwait(false);
@@ -184,21 +222,21 @@ namespace ModbusCore.Devices
                 _state = State.Sending;
 
                 _port.Write(frame, 0, frame.Length);
-
-                _lineIdleFrom = Stopwatch.GetTimestamp() + _timer3_5;
-                _state = State.Idle;
             }
             finally
             {
+                _lineIdleFrom = Stopwatch.GetTimestamp() + _timer3_5;
+                Interlocked.CompareExchange(ref _state, State.Idle, State.Sending);
+
                 _sendLock.Release();
             }
         }
 
-        private enum State
+        private class State
         {
-            Idle,
-            Sending,
-            Receiving,
+            public const int Idle = 0;
+            public const int Sending = 1;
+            public const int Receiving = 2;
         }
     }
 }

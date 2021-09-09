@@ -1,4 +1,5 @@
-﻿using System.IO.Ports;
+﻿using System.IO;
+using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
 using ModbusCore.Messages;
@@ -9,7 +10,8 @@ namespace ModbusCore.Devices
 {
     public class SerialRtuModbusDeviceTests
     {
-        [Fact]
+        [SkippableFact(typeof(FileNotFoundException), Timeout = 5000)]
+        [Trait("Execution", "Manual")]
         public async Task SerialRtuModbusDevice_SentMessageIsReceived()
         {
             // Arrange

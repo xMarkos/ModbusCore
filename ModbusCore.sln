@@ -13,6 +13,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusCore.Tests", "ModbusCore.Tests\ModbusCore.Tests.csproj", "{97389232-995E-4E3D-B8BF-3F944D237F86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{EB84D7CE-A38F-4B9B-96C6-7B732AEC49F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EB84D7CE-A38F-4B9B-96C6-7B732AEC49F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EB84D7CE-A38F-4B9B-96C6-7B732AEC49F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97389232-995E-4E3D-B8BF-3F944D237F86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97389232-995E-4E3D-B8BF-3F944D237F86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97389232-995E-4E3D-B8BF-3F944D237F86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97389232-995E-4E3D-B8BF-3F944D237F86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

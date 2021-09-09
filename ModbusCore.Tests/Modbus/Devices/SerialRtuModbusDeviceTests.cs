@@ -1,0 +1,68 @@
+﻿using System.IO.Ports;
+using System.Threading;
+using System.Threading.Tasks;
+using ModbusCore.Messages;
+using ModbusCore.Parsers;
+using Xunit;
+
+namespace ModbusCore.Devices
+{
+    public class SerialRtuModbusDeviceTests
+    {
+        [Fact]
+        public async Task SerialRtuModbusDevice_SentMessageIsReceived()
+        {
+            // Arrange
+            var context = new MessagingContext();
+
+            var parsers = new IMessageParser[] {
+                new ReadRegistersRequestParser(),
+            };
+
+            var sender = new SerialRtuModbusDevice(
+                new SerialRtuModbusDeviceConfiguration
+                {
+                    BaudRate = 9600,
+                    Parity = Parity.Even,
+                    PortName = "COM4",
+                }, context, parsers, null);
+
+            var target = new SerialRtuModbusDevice(
+                new SerialRtuModbusDeviceConfiguration
+                {
+                    BaudRate = 9600,
+                    Parity = Parity.Even,
+                    PortName = "COM3",
+                }, context, parsers, null);
+
+            IModbusMessage? receivedMessage = null;
+            ModbusMessageType receivedMessageType = ModbusMessageType.Unknown;
+
+            using (CancellationTokenSource cts = new())
+            {
+                target.MessageReceived += (object? sender, ModbusMessageReceivedEventArgs e) =>
+                {
+                    receivedMessage = e.Message;
+                    receivedMessageType = e.Type;
+                    cts.Cancel();
+                };
+
+                // Act
+                Task tLoop = target.ReceiverLoop(cts.Token);
+
+                await sender.Send(new byte[] { 0x11, 0x03, 0x00, 0x6B, 0x00, 0x03 }, default).ConfigureAwait(false);
+
+                await tLoop.ConfigureAwait(false);
+            }
+
+            // Verify
+            Assert.Equal(ModbusMessageType.Request, receivedMessageType);
+            var actual = Assert.IsType<ReadRegistersRequestMessage>(receivedMessage);
+
+            Assert.Equal(0x11, actual.Address);
+            Assert.Equal(0x03, actual.Function);
+            Assert.Equal(0x6B, actual.Register);
+            Assert.Equal(0x03, actual.Count);
+        }
+    }
+}

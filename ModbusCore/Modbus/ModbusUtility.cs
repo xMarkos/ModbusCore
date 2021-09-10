@@ -118,6 +118,12 @@ namespace ModbusCore
         public static void ReadRegisters(ReadOnlySpan<byte> buffer, int count, Span<ushort> destination)
             => ReadRegisters(buffer, count, MemoryMarshal.Cast<ushort, short>(destination));
 
+        public static void Write(Span<byte> buffer, byte value)
+            => buffer[0] = value;
+
+        public static void Write(Span<byte> buffer, sbyte value)
+            => buffer[0] = (byte)value;
+
         public static void Write(Span<byte> buffer, ushort value)
             => BinaryPrimitives.WriteUInt16BigEndian(buffer, value);
 

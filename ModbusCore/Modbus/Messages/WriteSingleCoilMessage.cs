@@ -2,17 +2,17 @@
 
 namespace ModbusCore.Messages
 {
-    public record WriteSingleCoilRequestMessage : MessageBase
+    public record WriteSingleCoilMessage : MessageBase
     {
         public ushort Register { get; init; }
         public bool Value { get; init; }
 
-        public WriteSingleCoilRequestMessage() { }
+        public WriteSingleCoilMessage() { }
 
-        public WriteSingleCoilRequestMessage(ReadOnlySpan<byte> buffer)
+        public WriteSingleCoilMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)
         {
-            if (buffer.Length < 5)
+            if (buffer.Length < 6)
                 throw new ArgumentException(null, nameof(buffer));
 
             Register = ModbusUtility.ReadUInt16(buffer[2..]);

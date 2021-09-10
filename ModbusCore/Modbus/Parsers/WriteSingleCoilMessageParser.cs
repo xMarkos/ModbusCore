@@ -3,10 +3,10 @@ using ModbusCore.Messages;
 
 namespace ModbusCore.Parsers
 {
-    public class WriteSingleCoilRequestMessageParser : IMessageParser
+    public class WriteSingleCoilMessageParser : IMessageParser
     {
         public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
-            => type == ModbusMessageType.Request && function is ModbusFunctionCode.WriteSingleCoil;
+            => type is ModbusMessageType.Request or ModbusMessageType.Response && function is ModbusFunctionCode.WriteSingleCoil;
 
         public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
         {
@@ -17,7 +17,7 @@ namespace ModbusCore.Parsers
         public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
         {
             int length = this.ValidateParse(buffer, type);
-            return new WriteSingleCoilRequestMessage(buffer[..length]);
+            return new WriteSingleCoilMessage(buffer[..length]);
         }
     }
 }

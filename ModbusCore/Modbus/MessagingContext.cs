@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 
 namespace ModbusCore
 {
-    public class MessagingContext
+    public class MessagingContext : IMessagingContext
     {
         private readonly ConcurrentDictionary<Transaction, bool> _transactions = new();
 

@@ -19,11 +19,17 @@ namespace ModbusCore.Messages
             Count = ModbusUtility.ReadUInt16(buffer[4..]);
         }
 
-        public override int WriteTo(Span<byte> buffer)
+        public override bool TryWriteTo(Span<byte> buffer, out int length)
         {
+            base.TryWriteTo(buffer, out length);
+            length += 4;
+
+            if (buffer.Length < length)
+                return false;
+
             ModbusUtility.Write(buffer[2..], Register);
             ModbusUtility.Write(buffer[4..], Count);
-            return base.WriteTo(buffer) + 4;
+            return true;
         }
     }
 }

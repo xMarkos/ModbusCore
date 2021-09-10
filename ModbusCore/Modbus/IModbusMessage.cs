@@ -7,6 +7,6 @@ namespace ModbusCore
         public byte Address { get; }
         public byte Function { get; }
 
-        public int WriteTo(Span<byte> buffer);
+        public bool TryWriteTo(Span<byte> buffer, out int length);
     }
 }

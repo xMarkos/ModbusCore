@@ -18,6 +18,7 @@ namespace ModbusCore.Devices
         private readonly SerialPort _port;
         private readonly SemaphoreSlim _sendLock = new(1);
         private readonly CancellationTokenSource _cts = new();
+        private readonly byte[] _sendBuffer = new byte[256];
         private readonly int _timer1_5;
         private readonly int _timer3_5;
         private long _lineIdleFrom;
@@ -169,7 +170,7 @@ namespace ModbusCore.Devices
                     }
                     catch (Exception ex)
                     {
-                        _logger?.LogError(ex, "Unhandled receiver exception");
+                        _logger?.LogError(ex, "Unhandled receiver exception -> discarding buffer and attempting to recover");
                         _port.DiscardInBuffer();
                     }
                     finally
@@ -181,6 +182,18 @@ namespace ModbusCore.Devices
             }, stoppingToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
+        private static void BuildFrame(IModbusMessage message, Span<byte> buffer, out int length)
+        {
+            // [Unit][PDU][CRC16]
+            // Unit is already included in the message, CRC is 2 bytes
+
+            if (!message.TryWriteTo(buffer, out length) || length > 254)
+                throw new ArgumentException("The message exceeds the maximum allowed length of 256 bytes", nameof(message));
+
+            ModbusUtility.Write(buffer[length..], ModbusUtility.CalculateCrc16(buffer[..length]));
+            length += 2;
+        }
+
         public override async Task Send(IModbusMessage message, CancellationToken cancellationToken)
         {
             if (message is null)
@@ -188,17 +201,13 @@ namespace ModbusCore.Devices
             if (_disposed)
                 throw new ObjectDisposedException(nameof(SerialRtuModbusDevice));
 
-            // Prepare the frame
-            // [Unit][PDU][CRC16]
-            // Unit is already included in the message, CRC is 2 bytes
-            byte[] frame = new byte[256];
-            int length = message.WriteTo(frame);
-
-            ModbusUtility.Write(frame.AsSpan(length..), ModbusUtility.CalculateCrc16(frame.AsSpan(..length)));
-
             await _sendLock.WaitAsync(1, cancellationToken).ConfigureAwait(false);
             try
             {
+                // It is enough to use shared buffer of fixed length 256, because we are in a lock,
+                //  and the spec does not allow longer frames than 256 bytes.
+                BuildFrame(message, _sendBuffer, out int length);
+
                 {
                     SpinWait w = new();
 
@@ -221,12 +230,13 @@ namespace ModbusCore.Devices
 
                 _state = State.Sending;
 
-                _port.Write(frame[..length], 0, frame.Length);
+                _port.Write(_sendBuffer, 0, length);
             }
             finally
             {
                 _lineIdleFrom = Stopwatch.GetTimestamp() + _timer3_5;
-                Interlocked.CompareExchange(ref _state, State.Idle, State.Sending);
+                if (Interlocked.CompareExchange(ref _state, State.Idle, State.Sending) == State.Receiving)
+                    _logger?.LogWarning("Collision detected while sending a frame");
 
                 _sendLock.Release();
             }

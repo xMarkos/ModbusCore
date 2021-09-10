@@ -4,7 +4,7 @@ namespace ModbusCore.Parsers
 {
     internal static class MesageParserExtensions
     {
-        public static void ValidateParse(this IMessageParser parser, ReadOnlySpan<byte> buffer, ModbusMessageType type)
+        public static int ValidateParse(this IMessageParser parser, ReadOnlySpan<byte> buffer, ModbusMessageType type)
         {
             if (buffer.Length < 2)
                 throw new ArgumentException(null, nameof(buffer));
@@ -14,6 +14,8 @@ namespace ModbusCore.Parsers
 
             if (!parser.TryGetFrameLength(buffer, type, out int length) || buffer.Length < length)
                 throw new ArgumentException(null, nameof(buffer));
+
+            return length;
         }
     }
 }

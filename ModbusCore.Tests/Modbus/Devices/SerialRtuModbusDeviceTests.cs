@@ -18,7 +18,7 @@ namespace ModbusCore.Devices
             var context = new MessagingContext();
 
             var parsers = new IMessageParser[] {
-                new ReadRegistersRequestParser(),
+                new ReadRegistersMessageParser(),
             };
 
             IModbusMessage? actualMessage = null;

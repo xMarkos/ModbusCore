@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Runtime.InteropServices;
 
 namespace ModbusCore
 {
@@ -106,17 +107,16 @@ namespace ModbusCore
         public static ulong ReadUInt64(ReadOnlySpan<byte> buffer)
             => BinaryPrimitives.ReadUInt64BigEndian(buffer);
 
-        public static ushort[] ReadUInt16(ReadOnlySpan<byte> buffer, int count)
+        public static void ReadRegisters(ReadOnlySpan<byte> buffer, int count, Span<short> destination)
         {
-            ushort[] result = new ushort[count];
-
             for (int i = 0; i < count; i++)
             {
-                result[i] = ReadUInt16(buffer[(count * 2)..]);
+                destination[i] = ReadInt16(buffer[(i * 2)..]);
             }
-
-            return result;
         }
+
+        public static void ReadRegisters(ReadOnlySpan<byte> buffer, int count, Span<ushort> destination)
+            => ReadRegisters(buffer, count, MemoryMarshal.Cast<ushort, short>(destination));
 
         public static void Write(Span<byte> buffer, ushort value)
             => BinaryPrimitives.WriteUInt16BigEndian(buffer, value);
@@ -141,5 +141,16 @@ namespace ModbusCore
 
         public static void Write(Span<byte> buffer, double value)
             => BinaryPrimitives.WriteDoubleBigEndian(buffer, value);
+
+        public static void WriteRegisters(Span<byte> buffer, Span<short> source, int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                Write(buffer[(i * 2)..], source[i]);
+            }
+        }
+
+        public static void WriteRegisters(Span<byte> buffer, Span<ushort> source, int count)
+            => WriteRegisters(buffer, MemoryMarshal.Cast<ushort, short>(source), count);
     }
 }

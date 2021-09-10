@@ -28,7 +28,7 @@ namespace ModbusCore.Messages
         public BitArray Bits { get; private set; } = null!;
 
         public ReadCoilsResponseMessage()
-            => Data = Array.Empty<byte>();
+            => Data = null!;
 
         public ReadCoilsResponseMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)

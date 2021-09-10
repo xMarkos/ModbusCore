@@ -11,10 +11,17 @@ namespace ModbusCore.Messages
     /// </summary>
     public record ReadRegistersResponseMessage : MessageBase
     {
-        public byte DataLength => checked((byte)((Data?.Length ?? 0) * 2));
-        public short[]? Data { get; init; }
+        public byte DataLength => checked((byte)(Data.Length * 2));
 
-        public ReadRegistersResponseMessage() { }
+        private readonly short[] _data = null!;
+        public short[] Data
+        {
+            get => _data;
+            init => _data = value ?? Array.Empty<short>();
+        }
+
+        public ReadRegistersResponseMessage()
+            => Data = null!;
 
         public ReadRegistersResponseMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)

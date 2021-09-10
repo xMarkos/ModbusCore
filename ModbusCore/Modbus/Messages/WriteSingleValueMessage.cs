@@ -7,7 +7,7 @@ namespace ModbusCore.Messages
         public ushort Register { get; init; }
         public ushort Value { get; init; }
 
-        public bool Coil
+        public bool CoilValue
         {
             // By specification, only 0xFF00 is true, and 0x0000 is false, but let's parse any non-zero value as true
             get => Value != 0;

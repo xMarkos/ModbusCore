@@ -72,9 +72,6 @@ namespace ModbusCore
         /// <returns>CRC16-IBM checksum.</returns>
         public static ushort CalculateCrc16(ReadOnlySpan<byte> buffer)
         {
-            if (buffer == null)
-                throw new ArgumentNullException(nameof(buffer));
-
             ushort result = ushort.MaxValue;
 
             foreach (byte b in buffer)

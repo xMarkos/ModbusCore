@@ -8,6 +8,9 @@ namespace ModbusCore
     {
         public static bool TryGetParser(this IEnumerable<IMessageParser> registry, ReadOnlySpan<byte> buffer, ModbusMessageType type, [NotNullWhen(true)] out IMessageParser? result)
         {
+            if (registry is null)
+                throw new ArgumentNullException(nameof(registry));
+
             byte function = buffer[1];
 
             foreach (IMessageParser parser in registry)

@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 
 namespace ModbusCore
 {
@@ -7,12 +8,27 @@ namespace ModbusCore
         private readonly ConcurrentDictionary<Transaction, bool> _transactions = new();
 
         public bool IsRequestActive(Transaction transaction)
-            => _transactions.ContainsKey(transaction);
+        {
+            if (transaction is null)
+                throw new ArgumentNullException(nameof(transaction));
+
+            return _transactions.ContainsKey(transaction);
+        }
 
         public void AddTransaction(Transaction transaction)
-            => _transactions.TryAdd(transaction, true);
+        {
+            if (transaction is null)
+                throw new ArgumentNullException(nameof(transaction));
+
+            _transactions.TryAdd(transaction, true);
+        }
 
         public void RemoveTransaction(Transaction transaction)
-            => _transactions.TryRemove(transaction, out _);
+        {
+            if (transaction is null)
+                throw new ArgumentNullException(nameof(transaction));
+
+            _transactions.TryRemove(transaction, out _);
+        }
     }
 }

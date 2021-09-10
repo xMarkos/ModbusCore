@@ -54,9 +54,7 @@ namespace ModbusCore.Devices
         }
 
         ~SerialRtuModbusDevice()
-        {
-            Dispose(false);
-        }
+            => Dispose(false);
 
         protected virtual void Dispose(bool disposing)
         {

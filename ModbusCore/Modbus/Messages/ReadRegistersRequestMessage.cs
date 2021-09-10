@@ -2,6 +2,15 @@
 
 namespace ModbusCore.Messages
 {
+    /// <summary>
+    /// Modbus message representing request for function codes:
+    /// <list type="bullet">
+    /// <item><see cref="ModbusFunctionCode.ReadCoils"/></item>
+    /// <item><see cref="ModbusFunctionCode.ReadDiscreteInputs"/></item>
+    /// <item><see cref="ModbusFunctionCode.ReadHoldingRegisters"/></item>
+    /// <item><see cref="ModbusFunctionCode.ReadInputRegisters"/></item>
+    /// </list>
+    /// </summary>
     public record ReadRegistersRequestMessage : MessageBase
     {
         public ushort Register { get; init; }

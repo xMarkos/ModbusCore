@@ -2,6 +2,13 @@
 
 namespace ModbusCore.Messages
 {
+    /// <summary>
+    /// Modbus message representing response for function codes:
+    /// <list type="bullet">
+    /// <item><see cref="ModbusFunctionCode.ReadHoldingRegisters"/></item>
+    /// <item><see cref="ModbusFunctionCode.ReadInputRegisters"/></item>
+    /// </list>
+    /// </summary>
     public record ReadRegistersResponseMessage : MessageBase
     {
         public byte DataLength => checked((byte)((Data?.Length ?? 0) * 2));

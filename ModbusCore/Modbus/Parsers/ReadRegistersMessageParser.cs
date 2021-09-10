@@ -6,7 +6,20 @@ namespace ModbusCore.Parsers
     public class ReadRegistersMessageParser : IMessageParser
     {
         public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
-            => type is ModbusMessageType.Request or ModbusMessageType.Response && function is ModbusFunctionCode.ReadHoldingRegisters or ModbusFunctionCode.ReadInputRegisters;
+        {
+            return type switch
+            {
+                ModbusMessageType.Request => function
+                    is ModbusFunctionCode.ReadHoldingRegisters
+                    or ModbusFunctionCode.ReadInputRegisters
+                    or ModbusFunctionCode.ReadCoils
+                    or ModbusFunctionCode.ReadDiscreteInputs,
+                ModbusMessageType.Response => function
+                    is ModbusFunctionCode.ReadHoldingRegisters
+                    or ModbusFunctionCode.ReadInputRegisters,
+                _ => false,
+            };
+        }
 
         public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
         {

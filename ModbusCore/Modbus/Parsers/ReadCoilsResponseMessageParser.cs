@@ -21,6 +21,9 @@ namespace ModbusCore.Parsers
         }
 
         public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
-            => new ReadCoilsResponseMessage(buffer);
+        {
+            int length = this.ValidateParse(buffer, type);
+            return new ReadCoilsResponseMessage(buffer[..length]);
+        }
     }
 }

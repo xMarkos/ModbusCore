@@ -15,6 +15,9 @@ namespace ModbusCore.Parsers
         }
 
         public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
-            => new ExceptionMessage(buffer);
+        {
+            int length = this.ValidateParse(buffer, type);
+            return new ExceptionMessage(buffer[..length]);
+        }
     }
 }

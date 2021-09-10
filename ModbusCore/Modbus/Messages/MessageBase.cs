@@ -1,21 +1,21 @@
 ﻿using System;
-using System.Text;
 
 namespace ModbusCore.Messages
 {
-    public record MessageBase(byte[] Frame) : IModbusMessage
+    public record MessageBase : IModbusMessage
     {
-        public byte Address => Frame[0];
-        public byte Function => Frame[1];
+        public byte Address { get; init; }
+        public byte Function { get; init; }
 
-        protected virtual bool PrintMembers(StringBuilder stringBuilder)
+        public MessageBase() { }
+
+        public MessageBase(ReadOnlySpan<byte> buffer)
         {
-            if (stringBuilder is null)
-                throw new ArgumentNullException(nameof(stringBuilder));
+            if (buffer.Length < 2)
+                throw new ArgumentException(null, nameof(buffer));
 
-            stringBuilder.Append($"{nameof(Address)} = {Address}, ");
-            stringBuilder.Append($"{nameof(Function)} = {Function}");
-            return true;
+            Address = buffer[0];
+            Function = buffer[1];
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace ModbusCore.Parsers
+namespace ModbusCore
 {
-    internal static class MesageParserExtensions
+    internal static class MessageParserExtensions
     {
         public static int ValidateParse(this IMessageParser parser, ReadOnlySpan<byte> buffer, ModbusMessageType type)
         {
@@ -17,5 +17,8 @@ namespace ModbusCore.Parsers
 
             return length;
         }
+
+        public static bool CanHandle(this IMessageParser parser, byte function, ModbusMessageType type)
+            => parser.CanHandle((ModbusFunctionCode)function, type);
     }
 }

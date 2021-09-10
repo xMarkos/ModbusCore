@@ -5,8 +5,8 @@ namespace ModbusCore.Parsers
 {
     public class ReadRegistersMessageParser : IMessageParser
     {
-        public bool CanHandle(byte function, ModbusMessageType type)
-            => type is ModbusMessageType.Request or ModbusMessageType.Response && function is 3 or 4;
+        public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
+            => type is ModbusMessageType.Request or ModbusMessageType.Response && function is ModbusFunctionCode.ReadHoldingRegisters or ModbusFunctionCode.ReadInputRegisters;
 
         public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
         {

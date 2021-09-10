@@ -20,7 +20,7 @@ namespace ModbusCore.Parsers
             ReadRegistersRequestMessage message = Assert.IsType<ReadRegistersRequestMessage>(actual);
 
             Assert.Equal(0x11, message.Address);
-            Assert.Equal(0x03, message.Function);
+            Assert.Equal((ModbusFunctionCode)0x03, message.Function);
             Assert.Equal(0x6B, message.Register);
             Assert.Equal(0x04, message.Count);
         }
@@ -39,7 +39,7 @@ namespace ModbusCore.Parsers
             ReadRegistersResponseMessage message = Assert.IsType<ReadRegistersResponseMessage>(actual);
 
             Assert.Equal(0x11, message.Address);
-            Assert.Equal(0x03, message.Function);
+            Assert.Equal((ModbusFunctionCode)0x03, message.Function);
             Assert.Equal(4, message.DataLength);
             Assert.Equal(new short[] { 0x0102, 0x0304 }, message.Data);
         }

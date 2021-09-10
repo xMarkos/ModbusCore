@@ -64,7 +64,7 @@ namespace ModbusCore.Devices
             var actual = Assert.IsType<ReadRegistersRequestMessage>(actualMessage);
 
             Assert.Equal(0x11, actual.Address);
-            Assert.Equal(0x03, actual.Function);
+            Assert.Equal((ModbusFunctionCode)0x03, actual.Function);
             Assert.Equal(0x6B, actual.Register);
             Assert.Equal(0x03, actual.Count);
         }

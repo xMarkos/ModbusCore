@@ -5,7 +5,7 @@ namespace ModbusCore.Messages
     public record MessageBase : IModbusMessage
     {
         public byte Address { get; init; }
-        public byte Function { get; init; }
+        public ModbusFunctionCode Function { get; init; }
 
         public MessageBase() { }
 
@@ -15,7 +15,7 @@ namespace ModbusCore.Messages
                 throw new ArgumentException(null, nameof(buffer));
 
             Address = buffer[0];
-            Function = buffer[1];
+            Function = (ModbusFunctionCode)buffer[1];
         }
 
         public virtual bool TryWriteTo(Span<byte> buffer, out int length)
@@ -26,7 +26,7 @@ namespace ModbusCore.Messages
                 return false;
 
             buffer[0] = Address;
-            buffer[1] = Function;
+            buffer[1] = (byte)Function;
             return true;
         }
     }

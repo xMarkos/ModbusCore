@@ -53,7 +53,8 @@ namespace ModbusCore.Devices
                 // Act
                 Task tLoop = target.ReceiverLoop(cts.Token);
 
-                await sender.Send(new byte[] { 0x11, 0x03, 0x00, 0x6B, 0x00, 0x03 }, default).ConfigureAwait(false);
+                ReadRegistersRequestMessage input = new(new byte[] { 0x11, 0x03, 0x00, 0x6B, 0x00, 0x03 });
+                await sender.Send(input, default).ConfigureAwait(false);
 
                 await tLoop.ConfigureAwait(false);
             }

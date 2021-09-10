@@ -12,7 +12,7 @@ namespace ModbusCore.Devices
 
         public abstract Task ReceiverLoop(CancellationToken stoppingToken);
 
-        public abstract Task Send(ReadOnlyMemory<byte> message, CancellationToken cancellationToken);
+        public abstract Task Send(IModbusMessage message, CancellationToken cancellationToken);
 
         protected virtual void OnMessageReceived(IModbusMessage message, ModbusMessageType type)
         {

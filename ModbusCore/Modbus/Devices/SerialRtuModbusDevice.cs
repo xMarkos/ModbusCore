@@ -181,18 +181,20 @@ namespace ModbusCore.Devices
             }, stoppingToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        public override async Task Send(ReadOnlyMemory<byte> message, CancellationToken cancellationToken)
+        public override async Task Send(IModbusMessage message, CancellationToken cancellationToken)
         {
+            if (message is null)
+                throw new ArgumentNullException(nameof(message));
             if (_disposed)
                 throw new ObjectDisposedException(nameof(SerialRtuModbusDevice));
 
             // Prepare the frame
             // [Unit][PDU][CRC16]
             // Unit is already included in the message, CRC is 2 bytes
-            byte[] frame = new byte[message.Length + 2];
-            message.CopyTo(frame.AsMemory(0, message.Length));
+            byte[] frame = new byte[256];
+            int length = message.WriteTo(frame);
 
-            ModbusUtility.Write(frame.AsSpan(^2..), ModbusUtility.CalculateCrc16(message.Span));
+            ModbusUtility.Write(frame.AsSpan(length..), ModbusUtility.CalculateCrc16(frame.AsSpan(..length)));
 
             await _sendLock.WaitAsync(1, cancellationToken).ConfigureAwait(false);
             try
@@ -219,7 +221,7 @@ namespace ModbusCore.Devices
 
                 _state = State.Sending;
 
-                _port.Write(frame, 0, frame.Length);
+                _port.Write(frame[..length], 0, frame.Length);
             }
             finally
             {

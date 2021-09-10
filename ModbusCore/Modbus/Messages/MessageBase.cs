@@ -17,5 +17,12 @@ namespace ModbusCore.Messages
             Address = buffer[0];
             Function = buffer[1];
         }
+
+        public virtual int WriteTo(Span<byte> buffer)
+        {
+            buffer[0] = Address;
+            buffer[1] = Function;
+            return 2;
+        }
     }
 }

@@ -47,5 +47,8 @@
                 Function = ModbusFunctionCode.ReadExceptionStatus,
             };
         }
+
+        public static RawModbusMessage RawMessage(this IModbusMessageBuilder _, byte[] frame)
+            => new RawModbusMessage(frame);
     }
 }

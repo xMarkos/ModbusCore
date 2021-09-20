@@ -32,7 +32,7 @@ steps:
     inputs:
       command: 'test'
       projects: '$(solution)'
-      arguments: '-c $(buildConfiguration)'
+      arguments: '-c $(buildConfiguration) -p:OnlyAutoTests=true --no-restore'
       # /p:CollectCoverage=true /p:CoverletOutput="$coverageDir/data/" /p:MergeWith="$coverageDir/data/coverage.json" /p:CoverletOutputFormat=\"json,opencover\"
 
   # Build nuget
@@ -41,7 +41,7 @@ steps:
     inputs:
       command: 'custom'
       custom: 'pack'
-      arguments: '-c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) -p:Revision=$(Build.BuildId) --include-symbols'
+      arguments: '-c $(buildConfiguration) -o $(Build.ArtifactStagingDirectory) -p:Revision=$(Build.BuildId) --include-symbols --no-restore'
   
   # publish artifacts
   - task: PublishBuildArtifacts@1

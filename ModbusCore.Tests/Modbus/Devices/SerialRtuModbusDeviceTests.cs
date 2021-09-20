@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿#if INCLUDE_MANUAL_TESTS
+using System.IO;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
@@ -70,3 +71,4 @@ namespace ModbusCore.Devices
         }
     }
 }
+#endif

@@ -6,6 +6,8 @@
     <IsPackable>false</IsPackable>
 
     <RootNamespace>ModbusCore</RootNamespace>
+    
+    <DefineConstants Condition="$(OnlyAutoTests) != 'true'">$(DefineConstants);INCLUDE_MANUAL_TESTS</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

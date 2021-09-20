@@ -137,7 +137,7 @@ namespace ModbusCore.Devices
                         ReadData(4);
 
                         // Read information necessary to obtain the length of the frame
-                        Transaction transaction = new(buffer[0], buffer[1]);
+                        Transaction transaction = new(buffer[0], (ModbusFunctionCode)buffer[1]);
                         ModbusMessageType messageType = _context.IsRequestActive(transaction) ? ModbusMessageType.Response : ModbusMessageType.Request;
 
                         IMessageParser parser = _parsers.GetParser(buffer.AsSpan(..bufferIndex), messageType);

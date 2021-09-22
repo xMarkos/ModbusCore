@@ -5,9 +5,11 @@
     <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>ModbusMonitor</AssemblyName>
     <RootNamespace>ModbusCore</RootNamespace>
+    <Authors>Marek Hübsch</Authors>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />

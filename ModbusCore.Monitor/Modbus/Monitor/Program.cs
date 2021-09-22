@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
+using CommandLine;
 using ModbusCore.Devices;
 using ModbusCore.Parsers;
 using Microsoft.Extensions.Logging;
@@ -13,13 +15,26 @@ namespace ModbusCore.Monitor
 {
     public class Program
     {
-        public static async Task Main()
+        public class Options
         {
-            string portName = "COM10";
-            int baudRate = 9600;
-            Parity parity = Parity.None;
+            [Value(0, Required = true, HelpText = "The name of the device used to listen for messages.")]
+            public string? Port { get; set; }
 
-            // TODO command line config
+            [Option('r', "baudrate", Default = 9600, HelpText = "Baud rate (speed) of the serial port.")]
+            public int BaudRate { get; set; }
+
+            [Option('p', "parity", Default = Parity.None, HelpText = "Parity of the serial port (None, Odd, Even, Mark, Space).")]
+            public Parity Parity { get; set; }
+        }
+
+        public static async Task Main(string[] args)
+        {
+            Options? options =
+                Parser.Default.ParseArguments<Options>(args)
+                    .MapResult(x => x, x => null!);
+
+            if (options is null)
+                return;
 
             Log.Logger =
                 new LoggerConfiguration()
@@ -56,20 +71,34 @@ namespace ModbusCore.Monitor
                 new WriteSingleValueMessageParser(),
             };
 
-            using var device = new SerialRtuModbusDevice(
-                new()
-                {
-                    PortName = portName,
-                    BaudRate = baudRate,
-                    Parity = parity,
-                },
-                context,
-                parsers,
-                loggerFactory.CreateLogger<SerialRtuModbusDevice>());
+            SerialRtuModbusDevice device;
+            try
+            {
+#pragma warning disable CA2000
+                device = new SerialRtuModbusDevice(
+                    new()
+                    {
+                        PortName = options.Port,
+                        BaudRate = options.BaudRate,
+                        Parity = options.Parity,
+                    },
+                    context,
+                    parsers,
+                    loggerFactory.CreateLogger<SerialRtuModbusDevice>());
+#pragma warning restore CA2000
+            }
+            catch (IOException ex)
+            {
+                Log.Logger.Error(ex, "Could not open the port");
+                return;
+            }
 
-            device.MessageReceived += Device_MessageReceived;
+            using (device)
+            {
+                device.MessageReceived += Device_MessageReceived;
 
-            await device.ReceiverLoop(cts.Token).ConfigureAwait(false);
+                await device.ReceiverLoop(cts.Token).ConfigureAwait(false);
+            }
 
             Log.Logger.Information("The monitor has ended");
         }

@@ -99,6 +99,8 @@ namespace ModbusCore.Devices
             if (_disposed)
                 throw new ObjectDisposedException(nameof(SerialRtuModbusDevice));
 
+            _logger?.LogInformation("Listening on port {Port} (rate={Rate}, parity={Parity}, stop bits={StopBits})", _port.PortName, _port.BaudRate, _port.Parity, _port.StopBits);
+
             return Task.Factory.StartNew(() =>
             {
                 byte[] buffer = new byte[4096];

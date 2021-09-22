@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ModbusCore.Monitor": {
+      "commandName": "Project",
+      "commandLineArgs": "COM3"
+    }
+  }
+}

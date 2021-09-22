@@ -15,9 +15,9 @@ namespace ModbusCore.Monitor
 {
     public class Program
     {
-        public class Options
+        private class Arguments
         {
-            [Value(0, Required = true, HelpText = "The name of the device used to listen for messages.")]
+            [Value(0, Required = true, MetaName = "Port", HelpText = "The name of the device used to listen for messages.")]
             public string? Port { get; set; }
 
             [Option('r', "baudrate", Default = 9600, HelpText = "Baud rate (speed) of the serial port.")]
@@ -29,8 +29,8 @@ namespace ModbusCore.Monitor
 
         public static async Task Main(string[] args)
         {
-            Options? options =
-                Parser.Default.ParseArguments<Options>(args)
+            Arguments? options =
+                Parser.Default.ParseArguments<Arguments>(args)
                     .MapResult(x => x, x => null!);
 
             if (options is null)
@@ -95,17 +95,15 @@ namespace ModbusCore.Monitor
 
             using (device)
             {
-                device.MessageReceived += Device_MessageReceived;
+                device.MessageReceived += (object? sender, ModbusMessageReceivedEventArgs e) =>
+                {
+                    Log.Logger.Information("Received {Type} {Message}", e.Type, e.Message);
+                };
 
                 await device.ReceiverLoop(cts.Token).ConfigureAwait(false);
             }
 
             Log.Logger.Information("The monitor has ended");
-        }
-
-        private static void Device_MessageReceived(object? sender, ModbusMessageReceivedEventArgs e)
-        {
-            Log.Logger.Information("Received {Type} {Message}", e.Type, e.Message);
         }
     }
 }

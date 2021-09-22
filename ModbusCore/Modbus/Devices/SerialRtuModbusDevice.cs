@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -156,7 +157,10 @@ namespace ModbusCore.Devices
                         _lineIdleFrom = Stopwatch.GetTimestamp() + _timer3_5;
 
                         ReadOnlySpan<byte> pdu = frame[..^2];
-                        if (ModbusUtility.CalculateCrc16(pdu) != ModbusUtility.ReadUInt16(frame[^2..]))
+
+                        // The CRC is sent as little endian (unlike all other data which is big endian)
+                        // see https://modbus.org/docs/Modbus_over_serial_line_V1_02.pdf page 39
+                        if (ModbusUtility.CalculateCrc16(pdu) != BinaryPrimitives.ReadUInt16LittleEndian(frame[^2..]))
                             throw new IOException("Checksum of the received frame is not valid");
 
                         IModbusMessage message = parser.Parse(pdu, messageType);
@@ -190,7 +194,7 @@ namespace ModbusCore.Devices
             if (!message.TryWriteTo(buffer, out length) || length > 254)
                 throw new ArgumentException("The message exceeds the maximum allowed length of 256 bytes", nameof(message));
 
-            ModbusUtility.Write(buffer[length..], ModbusUtility.CalculateCrc16(buffer[..length]));
+            BinaryPrimitives.WriteUInt16LittleEndian(buffer[length..], ModbusUtility.CalculateCrc16(buffer[..length]));
             length += 2;
         }
 

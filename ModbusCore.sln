@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.31624.102
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusCore", "ModbusCore\ModbusCore.csproj", "{EB84D7CE-A38F-4B9B-96C6-7B732AEC49F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModbusCore", "ModbusCore\ModbusCore.csproj", "{EB84D7CE-A38F-4B9B-96C6-7B732AEC49F0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{97857DD9-F5F2-45A0-A933-1D4420E164B4}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,7 +13,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		NuGet.config = NuGet.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusCore.Tests", "ModbusCore.Tests\ModbusCore.Tests.csproj", "{97389232-995E-4E3D-B8BF-3F944D237F86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModbusCore.Tests", "ModbusCore.Tests\ModbusCore.Tests.csproj", "{97389232-995E-4E3D-B8BF-3F944D237F86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusCore.Monitor", "ModbusCore.Monitor\ModbusCore.Monitor.csproj", "{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +31,10 @@ Global
 		{97389232-995E-4E3D-B8BF-3F944D237F86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97389232-995E-4E3D-B8BF-3F944D237F86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97389232-995E-4E3D-B8BF-3F944D237F86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.IO;
 using System.IO.Ports;
 using System.Threading;
@@ -61,15 +62,7 @@ namespace ModbusCore.Monitor
 
             using SerilogLoggerFactory loggerFactory = new SerilogLoggerFactory();
 
-            var context = new MessagingContext();
-
-            IMessageParser[] parsers = {
-                new ExceptionMessageParser(),
-                new ReadCoilsResponseMessageParser(),
-                new ReadRegistersMessageParser(),
-                new ReadExceptionStatusMessageParser(),
-                new WriteSingleValueMessageParser(),
-            };
+            using var context = new ExpiringMessagingContext(loggerFactory);
 
             SerialRtuModbusDevice device;
             try
@@ -83,7 +76,7 @@ namespace ModbusCore.Monitor
                         Parity = options.Parity,
                     },
                     context,
-                    parsers,
+                    ParserCollection.Default,
                     loggerFactory.CreateLogger<SerialRtuModbusDevice>());
 #pragma warning restore CA2000
             }
@@ -95,9 +88,24 @@ namespace ModbusCore.Monitor
 
             using (device)
             {
+                int messageWidth = 0;
+
                 device.MessageReceived += (object? sender, ModbusMessageReceivedEventArgs e) =>
                 {
-                    Log.Logger.Information("Received {Type} {Message}", e.Type, e.Message);
+                    if (e.Type == ModbusMessageType.Request)
+                    {
+                        context.AddTransaction(Transaction.From(e.Message));
+                    }
+                    else if (e.Type == ModbusMessageType.Response)
+                    {
+                        context.RemoveTransaction(Transaction.From(e.Message));
+                    }
+
+                    string[] parts = e.Message.ToString()!.Split(new[] { ' ' }, 2);
+                    if (messageWidth < parts[0].Length)
+                        messageWidth = parts[0].Length;
+
+                    Log.Logger.Information($"Received {{Type,-8}} {{Class,-{messageWidth}}} {{Message}}", e.Type, parts[0], parts[1]);
                 };
 
                 await device.ReceiverLoop(cts.Token).ConfigureAwait(false);

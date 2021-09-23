@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace ModbusCore.Messages
 {
@@ -27,6 +28,17 @@ namespace ModbusCore.Messages
 
             buffer[0] = Address;
             buffer[1] = (byte)Function;
+            return true;
+        }
+
+        protected virtual bool PrintMembers(StringBuilder builder)
+        {
+            if (builder is null)
+                throw new ArgumentNullException(nameof(builder));
+
+            builder.AppendFormat("{0} = {1,3}, ", nameof(Address), Address);
+            builder.AppendFormat("{0} = {1}", nameof(Function), Function);
+
             return true;
         }
     }

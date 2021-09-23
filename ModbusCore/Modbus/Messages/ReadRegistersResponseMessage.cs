@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace ModbusCore.Messages
 {
@@ -52,6 +53,19 @@ namespace ModbusCore.Messages
 
             if (Data.Length > 0)
                 ModbusUtility.WriteRegisters(buffer[3..], Data, Data.Length);
+
+            return true;
+        }
+
+        protected override bool PrintMembers(StringBuilder builder)
+        {
+            if (builder is null)
+                throw new ArgumentNullException(nameof(builder));
+
+            if (base.PrintMembers(builder))
+                builder.Append(", ");
+
+            builder.AppendFormat("{0} = {1}", nameof(DataLength), DataLength);
 
             return true;
         }

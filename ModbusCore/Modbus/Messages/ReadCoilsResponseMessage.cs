@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Text;
 
 namespace ModbusCore.Messages
 {
@@ -64,6 +65,19 @@ namespace ModbusCore.Messages
 
             buffer[2] = DataLength;
             Data.AsSpan().CopyTo(buffer[3..]);
+            return true;
+        }
+
+        protected override bool PrintMembers(StringBuilder builder)
+        {
+            if (builder is null)
+                throw new ArgumentNullException(nameof(builder));
+
+            if (base.PrintMembers(builder))
+                builder.Append(", ");
+
+            builder.AppendFormat("{0} = {1}", nameof(DataLength), DataLength);
+
             return true;
         }
     }

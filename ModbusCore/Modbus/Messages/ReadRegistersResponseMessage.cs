@@ -50,7 +50,7 @@ namespace ModbusCore.Messages
 
             buffer[1] = DataLength;
 
-            if (Data?.Length > 0)
+            if (Data.Length > 0)
                 ModbusUtility.WriteRegisters(buffer[3..], Data, Data.Length);
 
             return true;

@@ -2,6 +2,12 @@
 
 namespace ModbusCore.Messages
 {
+    /// <summary>
+    /// Modbus message representing request for function codes:
+    /// <list type="bullet">
+    /// <item><see cref="ModbusFunctionCode.WriteMultipleHoldingRegisters"/></item>
+    /// </list>
+    /// </summary>
     public record WriteMultipleRegistersRequestMessage : MessageBase
     {
         public ushort Register { get; init; }

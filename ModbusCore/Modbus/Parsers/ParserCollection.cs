@@ -12,7 +12,7 @@ namespace ModbusCore.Parsers
                 new ReadRegistersMessageParser(),
                 new ReadExceptionStatusMessageParser(),
                 new WriteSingleValueMessageParser(),
-                new WriteMultipleRegistersRequestMessageParser(),
+                new WriteMultipleRegistersMessageParser(),
             }.AsReadOnly();
     }
 }

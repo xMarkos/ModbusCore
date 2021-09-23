@@ -13,7 +13,7 @@ namespace ModbusCore.Devices
     public class SerialRtuModbusDevice : ModbusDeviceBase, IDisposable
     {
         private readonly IMessagingContext _context;
-        private readonly ICollection<IMessageParser> _parsers;
+        private readonly IReadOnlyCollection<IMessageParser> _parsers;
         private readonly ILogger<SerialRtuModbusDevice>? _logger;
 
         private readonly SerialPort _port;
@@ -26,7 +26,7 @@ namespace ModbusCore.Devices
         private int _state;
         private bool _disposed;
 
-        public SerialRtuModbusDevice(SerialRtuModbusDeviceConfiguration configuration, IMessagingContext context, ICollection<IMessageParser> parsers, ILogger<SerialRtuModbusDevice>? logger)
+        public SerialRtuModbusDevice(SerialRtuModbusDeviceConfiguration configuration, IMessagingContext context, IReadOnlyCollection<IMessageParser> parsers, ILogger<SerialRtuModbusDevice>? logger)
         {
             if (configuration is null)
                 throw new ArgumentNullException(nameof(configuration));

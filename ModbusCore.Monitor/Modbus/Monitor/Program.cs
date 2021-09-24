@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using ModbusCore.Devices;
+using ModbusCore.Messages;
 using ModbusCore.Parsers;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -23,17 +24,20 @@ namespace ModbusCore.Monitor
             [Value(0, Required = true, MetaName = "Port", HelpText = "The name of the device used to listen for messages.")]
             public string? Port { get; set; }
 
-            [Option('r', "baudrate", Default = 9600, HelpText = "Baud rate (speed) of the serial port.")]
+            [Option('s', "baudrate", Default = 9600, HelpText = "Baud rate (speed) of the serial port.")]
             public int BaudRate { get; set; }
 
             [Option('p', "parity", Default = Parity.None, HelpText = "Parity of the serial port (None, Odd, Even, Mark, Space).")]
             public Parity Parity { get; set; }
 
-            [Option('s', "stop-bits", HelpText = "(Default: infer from parity) Stop bits of the serial port (None, One, Two, OnePointFive).")]
+            [Option("stop-bits", HelpText = "(Default: infer from parity) Stop bits of the serial port (None, One, Two, OnePointFive).")]
             public StopBits? StopBits { get; set; }
 
             [Option('o', "output", HelpText = "File path to write JSON formatted messages (1 per line). Value \"-\" will write messages to console.")]
             public string? OutputPath { get; set; }
+
+            [Option('r', "raw-output", HelpText = "Writes frames in raw format (as received from the bus). Useful if the reader does not have dependency on our message types.")]
+            public bool WriteRawFrames { get; set; }
 
             [Option('e', "stderr", HelpText = "Writes messages to standard error instead of standard output.", SetName = "logging-1")]
             public bool WriteToStdErr { get; set; }
@@ -85,12 +89,12 @@ namespace ModbusCore.Monitor
                 Formatting = Formatting.None,
             };
 
-            using TextWriter? output =
+            using TextWriter? outputWriter =
                 options.OutputPath switch
                 {
                     null => null,
                     "-" => Console.Out,
-                    _ => new StreamWriter(File.Open(options.OutputPath, FileMode.Append, FileAccess.Write)),
+                    _ => new StreamWriter(File.Open(options.OutputPath, FileMode.Append, FileAccess.Write, FileShare.Read)),
                 };
 
             using CancellationTokenSource cts = new();
@@ -149,7 +153,9 @@ namespace ModbusCore.Monitor
 
                 device.MessageReceived += (object? sender, ModbusMessageReceivedEventArgs e) =>
                 {
-                    if (e.Type == ModbusMessageType.Request)
+                    bool isRequest = e.Type == ModbusMessageType.Request;
+
+                    if (isRequest)
                     {
                         context.AddTransaction(Transaction.From(e.Message));
                     }
@@ -167,10 +173,25 @@ namespace ModbusCore.Monitor
 
                     Log.Logger.Information(messageTemplate, e.Type, parts[0], parts[1]);
 
-                    if (output != null)
+                    if (outputWriter != null)
                     {
-                        serializer.Serialize(output, new PorcelainOutput(e.Type == ModbusMessageType.Request, e.Message));
-                        output.WriteLine();
+                        PorcelainOutputBase output;
+                        if (options.WriteRawFrames)
+                        {
+                            e.Message.TryWriteTo(null, out int length);
+                            byte[] buffer = new byte[length];
+                            e.Message.TryWriteTo(buffer, out _);
+
+                            output = new RawPorcelainOutput(isRequest, buffer);
+                        }
+                        else
+                        {
+                            output = new PorcelainOutput(isRequest, e.Message);
+                        }
+
+                        serializer.Serialize(outputWriter, output);
+                        outputWriter.WriteLine();
+                        outputWriter.Flush();
                     }
                 };
 

@@ -1,13 +1,11 @@
 ﻿namespace ModbusCore.Monitor
 {
-    internal class PorcelainOutput
+    internal class PorcelainOutput : PorcelainOutputBase
     {
-        public bool IsRequest { get; set; }
         public IModbusMessage? Message { get; set; }
 
-        public PorcelainOutput() { }
-
         public PorcelainOutput(bool isRequest, IModbusMessage message)
+            : base(isRequest)
         {
             IsRequest = isRequest;
             Message = message;

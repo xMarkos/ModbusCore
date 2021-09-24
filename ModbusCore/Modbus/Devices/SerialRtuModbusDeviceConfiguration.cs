@@ -8,5 +8,6 @@ namespace ModbusCore.Devices
         public string PortName { get; set; }
         public int BaudRate { get; set; }
         public Parity Parity { get; set; }
+        public StopBits? StopBits { get; set; }
     }
 }

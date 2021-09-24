@@ -29,6 +29,9 @@ namespace ModbusCore.Monitor
             [Option('p', "parity", Default = Parity.None, HelpText = "Parity of the serial port (None, Odd, Even, Mark, Space).")]
             public Parity Parity { get; set; }
 
+            [Option('s', "stop-bits", HelpText = "(Default: infer from parity) Stop bits of the serial port (None, One, Two, OnePointFive).")]
+            public StopBits? StopBits { get; set; }
+
             [Option('o', "output", HelpText = "File path to write JSON formatted messages (1 per line). Value \"-\" will write messages to console.")]
             public string? OutputPath { get; set; }
 
@@ -123,6 +126,7 @@ namespace ModbusCore.Monitor
                             PortName = options.Port,
                             BaudRate = options.BaudRate,
                             Parity = options.Parity,
+                            StopBits = options.StopBits,
                         },
                         context,
                         ParserCollection.Default,

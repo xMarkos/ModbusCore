@@ -38,7 +38,10 @@ namespace ModbusCore.Devices
             //const int baudrate = 300,600,115200;
             int baudrate = configuration.BaudRate;
             Parity parity = configuration.Parity;
-            StopBits stopBits = parity == Parity.None ? StopBits.Two : StopBits.One;
+
+            // By Modbus RTU spec, stop bits must be 2 for parity none, and 1 for all other (so that byte is always 11 bits),
+            //  but some devices may need a non-standard settings.
+            StopBits stopBits = configuration.StopBits ?? (parity == Parity.None ? StopBits.Two : StopBits.One);
 
             (_timer1_5, _timer3_5) = GetSilenceTimers(baudrate);
 

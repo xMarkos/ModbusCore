@@ -158,5 +158,8 @@ namespace ModbusCore
 
         public static void WriteRegisters(Span<byte> buffer, Span<ushort> source, int count)
             => WriteRegisters(buffer, MemoryMarshal.Cast<ushort, short>(source), count);
+
+        public static ModbusFunctionCode GetFunctionCodeFromException(ModbusFunctionCode exceptionFunctionCode)
+            => (ModbusFunctionCode)((int)exceptionFunctionCode & 0b0111_1111);
     }
 }

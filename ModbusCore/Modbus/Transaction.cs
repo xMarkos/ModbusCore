@@ -9,7 +9,7 @@ namespace ModbusCore
             if (message is null)
                 throw new ArgumentNullException(nameof(message));
 
-            return new(message.Address, message.Function);
+            return new(message.Address, ModbusUtility.GetFunctionCodeFromException(message.Function));
         }
     }
 }

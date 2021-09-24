@@ -4,6 +4,7 @@ namespace ModbusCore.Messages
 {
     public record ExceptionMessage : MessageBase
     {
+        public ModbusFunctionCode OriginalFunction { get; }
         public byte ExceptionCode { get; init; }
 
         public ExceptionMessage() { }
@@ -14,6 +15,7 @@ namespace ModbusCore.Messages
             if (buffer.Length < 3)
                 throw new ArgumentException(null, nameof(buffer));
 
+            OriginalFunction = ModbusUtility.GetFunctionCodeFromException(Function);
             ExceptionCode = buffer[2];
         }
 

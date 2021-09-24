@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace ModbusCore.Messages
 {
@@ -36,6 +37,26 @@ namespace ModbusCore.Messages
 
             ModbusUtility.Write(buffer[2..], Register);
             ModbusUtility.Write(buffer[4..], Value);
+            return true;
+        }
+
+        protected override bool PrintMembers(StringBuilder builder)
+        {
+            if (builder is null)
+                throw new ArgumentNullException(nameof(builder));
+
+            if (base.PrintMembers(builder))
+                builder.Append(", ");
+
+            if (Function == ModbusFunctionCode.WriteSingleCoil)
+            {
+                builder.AppendFormat("{0} = {1}", nameof(CoilValue), CoilValue);
+            }
+            else
+            {
+                builder.AppendFormat("{0} = {1}", nameof(Value), Value);
+            }
+
             return true;
         }
     }

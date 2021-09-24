@@ -36,8 +36,8 @@ namespace ModbusCore.Messages
             if (builder is null)
                 throw new ArgumentNullException(nameof(builder));
 
-            builder.AppendFormat("{0} = {1,3}, ", nameof(Address), Address);
-            builder.AppendFormat("{0} = {1}", nameof(Function), Function);
+            builder.AppendFormat("A ={0,3}, ", Address);
+            builder.AppendFormat("F = {0}", Function);
 
             return true;
         }

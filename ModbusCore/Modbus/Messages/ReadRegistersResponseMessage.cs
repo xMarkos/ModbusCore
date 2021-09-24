@@ -8,6 +8,7 @@ namespace ModbusCore.Messages
     /// <list type="bullet">
     /// <item><see cref="ModbusFunctionCode.ReadHoldingRegisters"/></item>
     /// <item><see cref="ModbusFunctionCode.ReadInputRegisters"/></item>
+    /// <item><see cref="ModbusFunctionCode.ReadWriteMultipleRegisters"/></item>
     /// </list>
     /// </summary>
     public record ReadRegistersResponseMessage : MessageBase

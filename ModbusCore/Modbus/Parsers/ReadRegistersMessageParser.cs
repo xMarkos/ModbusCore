@@ -16,7 +16,8 @@ namespace ModbusCore.Parsers
                     or ModbusFunctionCode.ReadDiscreteInputs,
                 ModbusMessageType.Response => function
                     is ModbusFunctionCode.ReadHoldingRegisters
-                    or ModbusFunctionCode.ReadInputRegisters,
+                    or ModbusFunctionCode.ReadInputRegisters
+                    or ModbusFunctionCode.ReadWriteMultipleRegisters,
                 _ => false,
             };
         }

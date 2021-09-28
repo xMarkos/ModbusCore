@@ -29,8 +29,7 @@ namespace ModbusCore.Messages
         public ReadWriteMultipleRegistersRequestMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)
         {
-            if (buffer.Length < 11)
-                throw new ArgumentException("The buffer must be at least 7 bytes long", nameof(buffer));
+            ValidateBufferLength(buffer, 11);
 
             ReadRegister = ModbusUtility.ReadUInt16(buffer[2..]);
             ReadCount = ModbusUtility.ReadUInt16(buffer[4..]);

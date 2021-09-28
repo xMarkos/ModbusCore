@@ -20,8 +20,7 @@ namespace ModbusCore.Messages
         public WriteSingleValueMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)
         {
-            if (buffer.Length < 6)
-                throw new ArgumentException(null, nameof(buffer));
+            ValidateBufferLength(buffer, 6);
 
             Register = ModbusUtility.ReadUInt16(buffer[2..]);
             Value = ModbusUtility.ReadUInt16(buffer[4..]);

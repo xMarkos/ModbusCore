@@ -34,13 +34,11 @@ namespace ModbusCore.Messages
         public ReadCoilsResponseMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)
         {
-            if (buffer.Length < 3)
-                throw new FormatException("Unexpected end of data");
+            ValidateBufferLength(buffer, 3);
 
             int length = buffer[2];
 
-            if (buffer.Length < length + 3)
-                throw new FormatException("Unexpected end of data");
+            ValidateBufferLength(buffer, length + 3);
 
             Data = buffer.Slice(3, length).ToArray();
 

@@ -12,8 +12,7 @@ namespace ModbusCore.Messages
         public ExceptionMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)
         {
-            if (buffer.Length < 3)
-                throw new ArgumentException(null, nameof(buffer));
+            ValidateBufferLength(buffer, 3);
 
             OriginalFunction = ModbusUtility.GetFunctionCodeFromException(Function);
             ExceptionCode = buffer[2];

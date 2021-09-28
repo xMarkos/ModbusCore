@@ -12,8 +12,7 @@ namespace ModbusCore.Messages
 
         public MessageBase(ReadOnlySpan<byte> buffer)
         {
-            if (buffer.Length < 2)
-                throw new ArgumentException(null, nameof(buffer));
+            ValidateBufferLength(buffer, 2);
 
             Address = buffer[0];
             Function = (ModbusFunctionCode)buffer[1];
@@ -40,6 +39,12 @@ namespace ModbusCore.Messages
             builder.AppendFormat("F = {0}", Function);
 
             return true;
+        }
+
+        protected static void ValidateBufferLength(ReadOnlySpan<byte> buffer, int length)
+        {
+            if (buffer.Length < length)
+                throw new FormatException($"Unexpected end of data. Expected buffer length: {length}.");
         }
     }
 }

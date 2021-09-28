@@ -28,15 +28,13 @@ namespace ModbusCore.Messages
         public ReadRegistersResponseMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)
         {
-            if (buffer.Length < 3)
-                throw new FormatException("Unexpected end of data");
+            ValidateBufferLength(buffer, 3);
 
             int length = buffer[2];
             if (length % 2 != 0)
                 throw new FormatException("Length is not multiple of 2");
 
-            if (buffer.Length < length + 3)
-                throw new FormatException("Unexpected end of data");
+            ValidateBufferLength(buffer, length + 3);
 
             Data = new short[length / 2];
             ModbusUtility.ReadRegisters(buffer[3..], Data.Length, Data);

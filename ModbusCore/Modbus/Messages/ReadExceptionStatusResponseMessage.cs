@@ -11,8 +11,7 @@ namespace ModbusCore.Messages
         public ReadExceptionStatusResponseMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)
         {
-            if (buffer.Length < 3)
-                throw new ArgumentException(null, nameof(buffer));
+            ValidateBufferLength(buffer, 3);
 
             Value = buffer[2];
         }

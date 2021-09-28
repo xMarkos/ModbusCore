@@ -18,8 +18,7 @@ namespace ModbusCore.Messages
         public WriteMultipleRegistersResponseMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)
         {
-            if (buffer.Length < 6)
-                throw new ArgumentException(null, nameof(buffer));
+            ValidateBufferLength(buffer, 6);
 
             Register = ModbusUtility.ReadUInt16(buffer[2..]);
             Count = ModbusUtility.ReadUInt16(buffer[4..]);

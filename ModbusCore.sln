@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModbusCore.Tests", "ModbusCore.Tests\ModbusCore.Tests.csproj", "{97389232-995E-4E3D-B8BF-3F944D237F86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModbusCore.Monitor", "ModbusCore.Monitor\ModbusCore.Monitor.csproj", "{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,10 +29,6 @@ Global
 		{97389232-995E-4E3D-B8BF-3F944D237F86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97389232-995E-4E3D-B8BF-3F944D237F86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97389232-995E-4E3D-B8BF-3F944D237F86}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F7D7EB04-462B-4B76-9EE4-8B3253E1CE5B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

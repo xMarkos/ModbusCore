@@ -50,5 +50,41 @@
 
         public static RawModbusMessage RawMessage(this IModbusMessageBuilder _, byte[] frame)
             => new RawModbusMessage(frame);
+
+        public static ReadDeviceIdentificationRequestMessage ReadDeviceIdentificationRequest(
+            this IModbusMessageBuilder _,
+            byte address,
+            ReadDeviceIdentificationRequestMessage.DeviceIdCodeType deviceIdCode,
+            byte objectId)
+        {
+            return new()
+            {
+                Address = address,
+                Function = ModbusFunctionCode.EncapsulatedInterfaceTransport,
+                DeviceIdCode = deviceIdCode,
+                ObjectId = objectId,
+            };
+        }
+
+        public static ReadDeviceIdentificationResponseMessage ReadDeviceIdentificationResponse(
+            this IModbusMessageBuilder _,
+            byte address,
+            ReadDeviceIdentificationRequestMessage.DeviceIdCodeType deviceIdCode,
+            ReadDeviceIdentificationResponseMessage.DeviceConformityLevel conformityLevel,
+            bool moreFollows,
+            byte nextObjectId,
+            ReadDeviceIdentificationResponseMessage.ObjectRecord[] objects)
+        {
+            return new()
+            {
+                Address = address,
+                Function = ModbusFunctionCode.EncapsulatedInterfaceTransport,
+                DeviceIdCode = deviceIdCode,
+                ConformityLevel = conformityLevel,
+                MoreFollows = moreFollows,
+                NextObjectId = nextObjectId,
+                Objects = objects,
+            };
+        }
     }
 }

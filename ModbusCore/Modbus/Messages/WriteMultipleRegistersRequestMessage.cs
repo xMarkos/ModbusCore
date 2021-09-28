@@ -24,7 +24,8 @@ namespace ModbusCore.Messages
             init => _writeData = value ?? Array.Empty<short>();
         }
 
-        public ReadWriteMultipleRegistersRequestMessage() { }
+        public ReadWriteMultipleRegistersRequestMessage()
+            => WriteData = null!;
 
         public ReadWriteMultipleRegistersRequestMessage(ReadOnlySpan<byte> buffer)
             : base(buffer)

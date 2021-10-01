@@ -10,12 +10,10 @@ namespace ModbusCore.Messages
         public DeviceIdCodeType DeviceIdCode { get; init; }
         public byte ObjectId { get; init; }
 
-        public ReadDeviceIdentificationRequestMessage()
-        {
-        }
+        public ReadDeviceIdentificationRequestMessage() : base(ModbusMessageType.Request) { }
 
         public ReadDeviceIdentificationRequestMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Request)
         {
             ValidateBufferLength(buffer, 5);
 

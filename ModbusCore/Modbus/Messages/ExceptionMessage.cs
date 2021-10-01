@@ -7,10 +7,10 @@ namespace ModbusCore.Messages
         public ModbusFunctionCode OriginalFunction { get; }
         public ModbusExceptionCode ExceptionCode { get; init; }
 
-        public ExceptionMessage() { }
+        public ExceptionMessage() : base(ModbusMessageType.Response) { }
 
         public ExceptionMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Response)
         {
             ValidateBufferLength(buffer, 3);
 

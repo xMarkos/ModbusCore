@@ -14,13 +14,13 @@ namespace ModbusCore.Devices
 
         public abstract Task Send(IModbusMessage message, CancellationToken cancellationToken);
 
-        protected virtual void OnMessageReceived(IModbusMessage message, ModbusMessageType type)
+        protected virtual void OnMessageReceived(IModbusMessage message)
         {
             // Run asynchronously to not block the reader thread. Scheduler is used to prevent race condition causing
             //  the events to be delivered out of order.
             Task.Factory.StartNew(() =>
             {
-                MessageReceived?.Invoke(this, new(message, type));
+                MessageReceived?.Invoke(this, new(message));
             }, default, TaskCreationOptions.HideScheduler | TaskCreationOptions.DenyChildAttach, _scheduler.ExclusiveScheduler);
         }
     }

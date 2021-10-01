@@ -24,11 +24,11 @@ namespace ModbusCore.Messages
             init => _writeData = value ?? Array.Empty<short>();
         }
 
-        public ReadWriteMultipleRegistersRequestMessage()
+        public ReadWriteMultipleRegistersRequestMessage() : base(ModbusMessageType.Request)
             => WriteData = null!;
 
         public ReadWriteMultipleRegistersRequestMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Request)
         {
             ValidateBufferLength(buffer, 11);
 
@@ -107,10 +107,10 @@ namespace ModbusCore.Messages
             init => _data = value ?? Array.Empty<short>();
         }
 
-        public WriteMultipleRegistersRequestMessage() { }
+        public WriteMultipleRegistersRequestMessage() : base(ModbusMessageType.Request) { }
 
         public WriteMultipleRegistersRequestMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Request)
         {
             if (buffer.Length < 7)
                 throw new ArgumentException("The buffer must be at least 7 bytes long", nameof(buffer));

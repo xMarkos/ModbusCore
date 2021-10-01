@@ -175,7 +175,7 @@ namespace ModbusCore.Devices
 
                             IModbusMessage message = parser.Parse(pdu, messageType);
 
-                            OnMessageReceived(message, messageType);
+                            OnMessageReceived(message);
                         }
                         catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
                         {

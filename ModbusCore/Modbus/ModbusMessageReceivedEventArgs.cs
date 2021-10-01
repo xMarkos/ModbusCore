@@ -5,12 +5,10 @@ namespace ModbusCore
     public class ModbusMessageReceivedEventArgs
     {
         public IModbusMessage Message { get; }
-        public ModbusMessageType Type { get; }
 
-        public ModbusMessageReceivedEventArgs(IModbusMessage message, ModbusMessageType type)
+        public ModbusMessageReceivedEventArgs(IModbusMessage message)
         {
             Message = message ?? throw new ArgumentNullException(nameof(message));
-            Type = type;
         }
     }
 }

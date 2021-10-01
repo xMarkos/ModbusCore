@@ -5,13 +5,21 @@ namespace ModbusCore.Messages
 {
     public record MessageBase : IModbusMessage
     {
+        public ModbusMessageType Type { get; init; }
+
         public byte Address { get; init; }
         public ModbusFunctionCode Function { get; init; }
 
         public MessageBase() { }
 
-        public MessageBase(ReadOnlySpan<byte> buffer)
+        public MessageBase(ModbusMessageType type)
+            => Type = type;
+
+        public MessageBase(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+            : this(type)
         {
+            Type = type;
+
             ValidateBufferLength(buffer, 2);
 
             Address = buffer[0];

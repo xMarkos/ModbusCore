@@ -17,8 +17,8 @@ namespace ModbusCore.Messages
 
         public WriteSingleValueMessage() { }
 
-        public WriteSingleValueMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+        public WriteSingleValueMessage(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+            : base(buffer, type)
         {
             ValidateBufferLength(buffer, 6);
 

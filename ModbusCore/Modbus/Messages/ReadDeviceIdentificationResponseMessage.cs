@@ -21,11 +21,11 @@ namespace ModbusCore.Messages
             init => _objects = value ?? Array.Empty<ObjectRecord>();
         }
 
-        public ReadDeviceIdentificationResponseMessage()
+        public ReadDeviceIdentificationResponseMessage() : base(ModbusMessageType.Response)
             => Objects = null!;
 
         public ReadDeviceIdentificationResponseMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Response)
         {
             ValidateBufferLength(buffer, 8);
 

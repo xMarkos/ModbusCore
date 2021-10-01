@@ -24,7 +24,6 @@ namespace ModbusCore.Devices
             };
 
             IModbusMessage? actualMessage = null;
-            ModbusMessageType actualMessageType = ModbusMessageType.Unknown;
 
             {
                 using var sender = new SerialRtuModbusDevice(
@@ -52,7 +51,6 @@ namespace ModbusCore.Devices
                 target.MessageReceived += (object? sender, ModbusMessageReceivedEventArgs e) =>
                 {
                     actualMessage = e.Message;
-                    actualMessageType = e.Type;
                     cts.Cancel();
                 };
 
@@ -69,7 +67,8 @@ namespace ModbusCore.Devices
             }
 
             // Verify
-            Assert.Equal(ModbusMessageType.Request, actualMessageType);
+            Assert.NotNull(actualMessage);
+            Assert.Equal(ModbusMessageType.Request, actualMessage!.Type);
             var actual = Assert.IsType<ReadRegistersRequestMessage>(actualMessage);
 
             Assert.Equal(0x11, actual.Address);

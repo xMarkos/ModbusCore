@@ -13,10 +13,10 @@ namespace ModbusCore.Messages
         public ushort Register { get; init; }
         public ushort Count { get; init; }
 
-        public WriteMultipleRegistersResponseMessage() { }
+        public WriteMultipleRegistersResponseMessage() : base(ModbusMessageType.Response) { }
 
         public WriteMultipleRegistersResponseMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Response)
         {
             ValidateBufferLength(buffer, 6);
 

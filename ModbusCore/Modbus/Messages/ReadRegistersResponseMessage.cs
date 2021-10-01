@@ -22,11 +22,11 @@ namespace ModbusCore.Messages
             init => _data = value ?? Array.Empty<short>();
         }
 
-        public ReadRegistersResponseMessage()
+        public ReadRegistersResponseMessage() : base(ModbusMessageType.Response)
             => Data = null!;
 
         public ReadRegistersResponseMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Response)
         {
             ValidateBufferLength(buffer, 3);
 

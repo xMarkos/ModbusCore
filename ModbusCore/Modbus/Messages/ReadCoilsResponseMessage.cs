@@ -28,11 +28,11 @@ namespace ModbusCore.Messages
 
         public BitArray Bits { get; private set; } = null!;
 
-        public ReadCoilsResponseMessage()
+        public ReadCoilsResponseMessage() : base(ModbusMessageType.Response)
             => Data = null!;
 
         public ReadCoilsResponseMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Response)
         {
             ValidateBufferLength(buffer, 3);
 

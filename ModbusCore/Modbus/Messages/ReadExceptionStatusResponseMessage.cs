@@ -6,10 +6,10 @@ namespace ModbusCore.Messages
     {
         public byte Value { get; init; }
 
-        public ReadExceptionStatusResponseMessage() { }
+        public ReadExceptionStatusResponseMessage() : base(ModbusMessageType.Response) { }
 
         public ReadExceptionStatusResponseMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Response)
         {
             ValidateBufferLength(buffer, 3);
 

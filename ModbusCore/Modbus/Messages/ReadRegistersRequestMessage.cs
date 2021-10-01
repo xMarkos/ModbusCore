@@ -16,10 +16,10 @@ namespace ModbusCore.Messages
         public ushort Register { get; init; }
         public ushort Count { get; init; }
 
-        public ReadRegistersRequestMessage() { }
+        public ReadRegistersRequestMessage() : base(ModbusMessageType.Request) { }
 
         public ReadRegistersRequestMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer)
+            : base(buffer, ModbusMessageType.Request)
         {
             ValidateBufferLength(buffer, 6);
 

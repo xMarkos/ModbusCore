@@ -4,6 +4,8 @@ namespace ModbusCore
 {
     public interface IModbusMessage
     {
+        public ModbusMessageType Type { get; }
+
         public byte Address { get; }
         public ModbusFunctionCode Function { get; }
 

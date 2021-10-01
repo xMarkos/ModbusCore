@@ -21,7 +21,7 @@ namespace ModbusCore
             _items = new(_options);
         }
 
-        public bool IsRequestActive(Transaction transaction)
+        public bool IsTransactionActive(Transaction transaction)
             => _items.TryGetValue(transaction, out _);
 
         public void AddTransaction(Transaction transaction)
@@ -42,21 +42,39 @@ namespace ModbusCore
         }
     }
 
-    public class ExpiringMessagingContext<T> : ExpiringMessagingContext
+    public class ExpiringMessagingContext<TContext> : ExpiringMessagingContext
     {
-        public bool TryGetActiveRequest(Transaction transaction, out T? request)
+        private readonly PostEvictionDelegate? _evictionCallback;
+
+        public ExpiringMessagingContext(bool disposeValueOnExpiration = true)
+        {
+            if (typeof(IDisposable).IsAssignableFrom(typeof(TContext)) && disposeValueOnExpiration)
+            {
+                _evictionCallback = static (key, value, reason, state) =>
+                {
+                    if (reason is EvictionReason.Capacity or EvictionReason.Expired or EvictionReason.TokenExpired && value is IDisposable d)
+                        d.Dispose();
+                };
+            }
+        }
+
+        public bool TryGetActiveTransaction(Transaction transaction, out TContext? context)
         {
             bool success = _items.TryGetValue(transaction, out object value);
-            request = value is T t ? t : default;
+            context = value is TContext t ? t : default;
             return success;
         }
 
-        public void AddTransaction(Transaction transaction, T request)
+        public void AddTransaction(Transaction transaction, TContext context)
         {
             if (transaction is null)
                 throw new ArgumentNullException(nameof(transaction));
 
-            _items.Set(transaction, request, Timeout);
+            using ICacheEntry cacheEntry =
+                _items.CreateEntry(transaction)
+                    .SetValue(context)
+                    .SetAbsoluteExpiration(Timeout)
+                    .RegisterPostEvictionCallback(_evictionCallback);
         }
     }
 }

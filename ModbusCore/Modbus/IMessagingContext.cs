@@ -2,6 +2,6 @@
 {
     public interface IMessagingContext
     {
-        bool IsRequestActive(Transaction transaction);
+        bool IsTransactionActive(Transaction transaction);
     }
 }

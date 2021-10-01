@@ -7,7 +7,7 @@ namespace ModbusCore
     {
         private readonly ConcurrentDictionary<Transaction, bool> _transactions = new();
 
-        public bool IsRequestActive(Transaction transaction)
+        public bool IsTransactionActive(Transaction transaction)
         {
             if (transaction is null)
                 throw new ArgumentNullException(nameof(transaction));

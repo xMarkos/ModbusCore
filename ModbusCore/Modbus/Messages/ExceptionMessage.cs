@@ -5,7 +5,7 @@ namespace ModbusCore.Messages
     public record ExceptionMessage : MessageBase
     {
         public ModbusFunctionCode OriginalFunction { get; }
-        public byte ExceptionCode { get; init; }
+        public ModbusExceptionCode ExceptionCode { get; init; }
 
         public ExceptionMessage() { }
 
@@ -15,7 +15,7 @@ namespace ModbusCore.Messages
             ValidateBufferLength(buffer, 3);
 
             OriginalFunction = ModbusUtility.GetFunctionCodeFromException(Function);
-            ExceptionCode = buffer[2];
+            ExceptionCode = (ModbusExceptionCode)buffer[2];
         }
 
         public override bool TryWriteTo(Span<byte> buffer, out int length)
@@ -26,7 +26,7 @@ namespace ModbusCore.Messages
             if (buffer.Length < length)
                 return false;
 
-            buffer[2] = ExceptionCode;
+            buffer[2] = (byte)ExceptionCode;
             return true;
         }
     }

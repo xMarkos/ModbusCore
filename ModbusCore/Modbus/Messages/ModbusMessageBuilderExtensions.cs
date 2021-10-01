@@ -48,8 +48,8 @@
             };
         }
 
-        public static RawModbusMessage RawMessage(this IModbusMessageBuilder _, byte[] frame)
-            => new RawModbusMessage(frame);
+        public static RawModbusMessage RawMessage(this IModbusMessageBuilder _, byte[] frame, ModbusMessageType type)
+            => new RawModbusMessage(frame, type);
 
         public static ReadDeviceIdentificationRequestMessage ReadDeviceIdentificationRequest(
             this IModbusMessageBuilder _,

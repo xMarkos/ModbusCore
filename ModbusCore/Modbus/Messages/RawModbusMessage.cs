@@ -3,9 +3,9 @@ using System.Text;
 
 namespace ModbusCore.Messages
 {
-    public record RawModbusMessage(byte[] Buffer) : IModbusMessage
+    public record RawModbusMessage(byte[] Buffer, ModbusMessageType Type) : IModbusMessage
     {
-        public ModbusMessageType Type { get; set; }
+        public ModbusMessageType Type { get; set; } = Type;
 
         public byte Address => Buffer[0];
         public ModbusFunctionCode Function => (ModbusFunctionCode)Buffer[1];

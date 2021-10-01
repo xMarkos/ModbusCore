@@ -1,11 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace ModbusCore.Monitor
+namespace ModbusCore
 {
-    public class ExpiringMessagingContext : MemoryCache, IMessagingContext
+    public class ExpiringMessagingContext<T> : MemoryCache, IMessagingContext
     {
         private readonly static IOptions<MemoryCacheOptions> _options =
             new OptionsWrapper<MemoryCacheOptions>(new MemoryCacheOptions
@@ -15,20 +15,32 @@ namespace ModbusCore.Monitor
 
         public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(1);
 
-        public ExpiringMessagingContext(ILoggerFactory loggerFactory)
-            : base(_options, loggerFactory)
+        public ExpiringMessagingContext()
+            : base(_options)
         {
+        }
+
+        public bool TryGetActiveRequest(Transaction transaction, [NotNullWhen(true)] out T? request)
+        {
+            if (TryGetValue(transaction, out object value) && value is T result)
+            {
+                request = result;
+                return true;
+            }
+
+            request = default;
+            return false;
         }
 
         public bool IsRequestActive(Transaction transaction)
             => TryGetValue(transaction, out _);
 
-        public void AddTransaction(Transaction transaction)
+        public void AddTransaction(Transaction transaction, T request)
         {
             if (transaction is null)
                 throw new ArgumentNullException(nameof(transaction));
 
-            this.Set(transaction, true, Timeout);
+            this.Set(transaction, request, Timeout);
         }
 
         public void RemoveTransaction(Transaction transaction)

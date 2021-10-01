@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ModbusCore.Messages;
 using ModbusCore.Parsers;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
 namespace ModbusCore.Devices
@@ -31,16 +32,20 @@ namespace ModbusCore.Devices
                     {
                         BaudRate = 9600,
                         Parity = Parity.Even,
-                        PortName = "COM4",
-                    }, context, parsers, null);
+                        PortName = "COM10",
+                    },
+                    parsers,
+                    NullLogger<SerialRtuModbusDevice>.Instance);
 
                 using var target = new SerialRtuModbusDevice(
                     new SerialRtuModbusDeviceConfiguration
                     {
                         BaudRate = 9600,
                         Parity = Parity.Even,
-                        PortName = "COM3",
-                    }, context, parsers, null);
+                        PortName = "COM11",
+                    },
+                    parsers,
+                    NullLogger<SerialRtuModbusDevice>.Instance);
 
                 using CancellationTokenSource cts = new();
 
@@ -52,12 +57,15 @@ namespace ModbusCore.Devices
                 };
 
                 // Act
-                Task tLoop = target.ReceiverLoop(cts.Token);
+                Task[] loops = {
+                    sender.Run(context, cts.Token),
+                    target.Run(context, cts.Token),
+                };
 
                 ReadRegistersRequestMessage input = new(new byte[] { 0x11, 0x03, 0x00, 0x6B, 0x00, 0x03 });
                 await sender.Send(input, default).ConfigureAwait(false);
 
-                await tLoop.ConfigureAwait(false);
+                await Task.WhenAll(loops).ConfigureAwait(false);
             }
 
             // Verify

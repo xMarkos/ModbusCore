@@ -10,7 +10,7 @@ namespace ModbusCore.Devices
 
         public event EventHandler<ModbusMessageReceivedEventArgs>? MessageReceived;
 
-        public abstract Task ReceiverLoop(CancellationToken stoppingToken);
+        public abstract Task Run(IMessagingContext context, CancellationToken stoppingToken);
 
         public abstract Task Send(IModbusMessage message, CancellationToken cancellationToken);
 

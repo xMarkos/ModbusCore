@@ -9,6 +9,6 @@ namespace ModbusCore
         event EventHandler<ModbusMessageReceivedEventArgs>? MessageReceived;
 
         Task Send(IModbusMessage message, CancellationToken cancellationToken);
-        Task ReceiverLoop(CancellationToken stoppingToken);
+        Task Run(IMessagingContext context, CancellationToken stoppingToken);
     }
 }

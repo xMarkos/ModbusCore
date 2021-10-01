@@ -2,6 +2,12 @@
 
 namespace ModbusCore.Messages
 {
+    /// <summary>
+    /// Modbus message representing request for function codes:
+    /// <list type="bullet">
+    /// <item><see cref="ModbusFunctionCode.EncapsulatedInterfaceTransport"/> MEI code 0x2E</item>
+    /// </list>
+    /// </summary>
     public record ReadDeviceIdentificationRequestMessage : MessageBase
     {
         public const byte ReadDeviceIdentificationMeiType = 0x2e;

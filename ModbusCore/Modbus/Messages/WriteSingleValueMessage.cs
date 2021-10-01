@@ -3,6 +3,13 @@ using System.Text;
 
 namespace ModbusCore.Messages
 {
+    /// <summary>
+    /// Modbus message representing request and response for function codes:
+    /// <list type="bullet">
+    /// <item><see cref="ModbusFunctionCode.WriteSingleCoil"/></item>
+    /// <item><see cref="ModbusFunctionCode.WriteSingleHoldingRegister"/></item>
+    /// </list>
+    /// </summary>
     public record WriteSingleValueMessage : MessageBase
     {
         public ushort Register { get; init; }

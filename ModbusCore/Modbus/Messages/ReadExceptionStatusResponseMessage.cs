@@ -2,6 +2,12 @@
 
 namespace ModbusCore.Messages
 {
+    /// <summary>
+    /// Modbus message representing response for function codes:
+    /// <list type="bullet">
+    /// <item><see cref="ModbusFunctionCode.ReadExceptionStatus"/></item>
+    /// </list>
+    /// </summary>
     public record ReadExceptionStatusResponseMessage : MessageBase
     {
         public byte Value { get; init; }

@@ -2,6 +2,9 @@
 
 namespace ModbusCore.Messages
 {
+    /// <summary>
+    /// Modbus message representing response for exception function codes (above 0x80).
+    /// </summary>
     public record ExceptionMessage : MessageBase
     {
         public ModbusFunctionCode OriginalFunction { get; }

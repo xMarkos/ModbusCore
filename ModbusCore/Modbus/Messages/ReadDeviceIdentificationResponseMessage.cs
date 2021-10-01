@@ -4,6 +4,12 @@ using static ModbusCore.Messages.ReadDeviceIdentificationRequestMessage;
 
 namespace ModbusCore.Messages
 {
+    /// <summary>
+    /// Modbus message representing response for function codes:
+    /// <list type="bullet">
+    /// <item><see cref="ModbusFunctionCode.EncapsulatedInterfaceTransport"/> MEI code 0x2E</item>
+    /// </list>
+    /// </summary>
     public record ReadDeviceIdentificationResponseMessage : MessageBase
     {
         public byte MeiType { get; } = ReadDeviceIdentificationMeiType;

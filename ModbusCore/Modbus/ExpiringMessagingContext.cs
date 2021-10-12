@@ -31,6 +31,9 @@ namespace ModbusCore
 
             using ICacheEntry cacheEntry = _items.CreateEntry(transaction);
             cacheEntry.AbsoluteExpirationRelativeToNow = Timeout;
+
+            // Note: The value MUST be set, otherwise the cache entry wouldn't get commited to the cache!
+            cacheEntry.Value = null;
         }
 
         public void RemoveTransaction(Transaction transaction)

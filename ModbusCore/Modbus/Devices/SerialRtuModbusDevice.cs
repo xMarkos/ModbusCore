@@ -151,6 +151,8 @@ namespace ModbusCore.Devices
                             Transaction transaction = new(buffer[0], (ModbusFunctionCode)buffer[1]);
                             ModbusMessageType messageType = context.IsTransactionActive(transaction) ? ModbusMessageType.Response : ModbusMessageType.Request;
 
+                            _logger?.LogTrace("Looking-up parser for {Type,-8}, {Transaction}", messageType, transaction);
+
                             IMessageParser parser = _parsers.GetParser(buffer.AsSpan(..bufferIndex), messageType);
 
                             // Some messages types might need more data to determine the length

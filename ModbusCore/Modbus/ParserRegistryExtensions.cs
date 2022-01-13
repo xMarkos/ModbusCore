@@ -29,7 +29,7 @@ namespace ModbusCore
         public static IMessageParser GetParser(this IEnumerable<IMessageParser> registry, ReadOnlySpan<byte> buffer, ModbusMessageType type)
         {
             if (!registry.TryGetParser(buffer, type, out IMessageParser? parser))
-                throw new NotSupportedException($"Message type={type} function={buffer[1]} is not supported");
+                throw new NotSupportedException($"Message type={type} function={buffer[1]} is not supported; address={buffer[0]}");
 
             return parser;
         }

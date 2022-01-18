@@ -95,7 +95,7 @@ namespace ModbusCore.Devices
             }
         }
 
-        public override async Task Run(IMessagingContext context, CancellationToken stoppingToken)
+        public override Task Run(IMessagingContext context, CancellationToken stoppingToken)
         {
             if (context is null)
                 throw new ArgumentNullException(nameof(context));
@@ -107,101 +107,97 @@ namespace ModbusCore.Devices
 
             _port.Open();
 
-            try
+            return Task.Factory.StartNew(() =>
             {
-                await Task.Factory.StartNew(() =>
+                byte[] buffer = new byte[4096];
+                int bufferIndex = 0;
+
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, stoppingToken);
+
+                while (!cts.Token.IsCancellationRequested)
                 {
-                    byte[] buffer = new byte[4096];
-                    int bufferIndex = 0;
-
-                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token, stoppingToken);
-
-                    while (!cts.Token.IsCancellationRequested)
+                    try
                     {
-                        try
+                        void ReadData(int count)
                         {
-                            void ReadData(int count)
+                            while (bufferIndex < count)
                             {
-                                while (bufferIndex < count)
-                                {
-                                    cts.Token.ThrowIfCancellationRequested();
-                                    bufferIndex += _port.Read(buffer, bufferIndex, count - bufferIndex);
-                                }
+                                cts.Token.ThrowIfCancellationRequested();
+                                bufferIndex += _port.Read(buffer, bufferIndex, count - bufferIndex);
                             }
+                        }
 
-                            // Read only header of the frame
-                            while (true)
+                        // Read only header of the frame
+                        while (true)
+                        {
+                            try
                             {
-                                try
-                                {
-                                    ReadData(1);
-                                    break;
-                                }
-                                catch (TimeoutException)
-                                {
-                                    // It is acceptable to timeout for the 1st byte
-                                }
+                                ReadData(1);
+                                break;
                             }
-
-                            _state = State.Receiving;
-
-                            ReadData(4);
-
-                            // Read information necessary to obtain the length of the frame
-                            Transaction transaction = new(buffer[0], (ModbusFunctionCode)buffer[1]);
-                            ModbusMessageType messageType = context.IsTransactionActive(transaction) ? ModbusMessageType.Response : ModbusMessageType.Request;
-
-                            _logger?.LogTrace("Looking-up parser for {Type,-8}, {Transaction}", messageType, transaction);
-
-                            IMessageParser parser = _parsers.GetParser(buffer.AsSpan(..bufferIndex), messageType);
-
-                            // Some messages types might need more data to determine the length
-                            int frameLength;
-                            while (!parser.TryGetFrameLength(buffer.AsSpan(..bufferIndex), messageType, out frameLength))
-                                ReadData(frameLength);
-
-                            // Read the remaining frame bytes +2 bytes for CRC16
-                            ReadData(frameLength + 2);
-
-                            Span<byte> frame = buffer.AsSpan(..bufferIndex);
-
-                            // The frame is complete now
-                            _lineIdleFrom = Stopwatch.GetTimestamp() + _timer3_5;
-
-                            ReadOnlySpan<byte> pdu = frame[..^2];
-
-                            // The CRC is sent as little endian (unlike all other data which is big endian)
-                            // see https://modbus.org/docs/Modbus_over_serial_line_V1_02.pdf page 39
-                            if (ModbusUtility.CalculateCrc16(pdu) != BinaryPrimitives.ReadUInt16LittleEndian(frame[^2..]))
-                                throw new IOException("Checksum of the received frame is not valid");
-
-                            IModbusMessage message = parser.Parse(pdu, messageType);
-
-                            OnMessageReceived(message);
+                            catch (TimeoutException)
+                            {
+                                // It is acceptable to timeout for the 1st byte
+                            }
                         }
-                        catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
-                        {
-                            _logger?.LogInformation("Cancellation was requested -> stopping receiver");
-                            break;
-                        }
-                        catch (Exception ex)
-                        {
-                            _logger?.LogError(ex, "Unhandled receiver exception -> discarding buffer and attempting to recover");
-                            _port.DiscardInBuffer();
-                        }
-                        finally
-                        {
-                            bufferIndex = 0;
-                            _state = State.Idle;
-                        }
+
+                        _state = State.Receiving;
+
+                        ReadData(4);
+
+                        // Read information necessary to obtain the length of the frame
+                        Transaction transaction = new(buffer[0], (ModbusFunctionCode)buffer[1]);
+                        ModbusMessageType messageType = context.IsTransactionActive(transaction) ? ModbusMessageType.Response : ModbusMessageType.Request;
+
+                        _logger?.LogTrace("Looking-up parser for {Type,-8}, {Transaction}", messageType, transaction);
+
+                        IMessageParser parser = _parsers.GetParser(buffer.AsSpan(..bufferIndex), messageType);
+
+                        // Some messages types might need more data to determine the length
+                        int frameLength;
+                        while (!parser.TryGetFrameLength(buffer.AsSpan(..bufferIndex), messageType, out frameLength))
+                            ReadData(frameLength);
+
+                        // Read the remaining frame bytes +2 bytes for CRC16
+                        ReadData(frameLength + 2);
+
+                        Span<byte> frame = buffer.AsSpan(..bufferIndex);
+
+                        // The frame is complete now
+                        _lineIdleFrom = Stopwatch.GetTimestamp() + _timer3_5;
+
+                        ReadOnlySpan<byte> pdu = frame[..^2];
+
+                        // The CRC is sent as little endian (unlike all other data which is big endian)
+                        // see https://modbus.org/docs/Modbus_over_serial_line_V1_02.pdf page 39
+                        if (ModbusUtility.CalculateCrc16(pdu) != BinaryPrimitives.ReadUInt16LittleEndian(frame[^2..]))
+                            throw new IOException("Checksum of the received frame is not valid");
+
+                        IModbusMessage message = parser.Parse(pdu, messageType);
+
+                        OnMessageReceived(message);
                     }
-                }, stoppingToken, TaskCreationOptions.LongRunning, TaskScheduler.Default)
-                .ConfigureAwait(false);
-            }
-            finally
+                    catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+                    {
+                        _logger?.LogInformation("Cancellation was requested -> stopping receiver");
+                        break;
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger?.LogError(ex, "Unhandled receiver exception -> discarding buffer and attempting to recover");
+                        _port.DiscardInBuffer();
+                    }
+                    finally
+                    {
+                        bufferIndex = 0;
+                        _state = State.Idle;
+                    }
+                }
+            }, stoppingToken, TaskCreationOptions.LongRunning, TaskScheduler.Default)
+            .ContinueWith(t =>
             {
                 _port.Close();
-            }
+            }, TaskContinuationOptions.ExecuteSynchronously);
         }
 
         private static void BuildFrame(IModbusMessage message, Span<byte> buffer, out int length)

@@ -1,0 +1,52 @@
+{
+  "profiles": {
+    "ModbusCore.Monitor (COM3)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM3 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM4)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM4 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM5)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM5 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM6)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM6 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM7)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM7 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM8)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM8 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM9)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM9 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM10)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM10 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM11)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM11 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM12)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM12 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM13)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM13 -v Verbose"
+    },
+    "ModbusCore.Monitor (COM14)": {
+      "commandName": "Project",
+      "commandLineArgs": "COM14 -v Verbose"
+    }
+  }
+}

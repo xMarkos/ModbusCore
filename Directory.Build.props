@@ -3,6 +3,7 @@
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<Company>Markos</Company>
 		<Product />
+		<Version>1.0.1</Version>
 
 		<Nullable>enable</Nullable>
 		<OutputPath>bin\$(Configuration)\</OutputPath>

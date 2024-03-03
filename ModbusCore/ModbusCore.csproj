@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net8</TargetFramework>
     <RootNamespace>ModbusCore</RootNamespace>
     <Authors>Marek Hübsch</Authors>
     <Description>Extensible implementation of the Modbus protocol over serial line.</Description>

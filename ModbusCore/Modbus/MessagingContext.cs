@@ -1,34 +1,30 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace ModbusCore
+namespace ModbusCore;
+
+public class MessagingContext : IMessagingContext
 {
-    public class MessagingContext : IMessagingContext
+    private readonly ConcurrentDictionary<Transaction, bool> _transactions = new();
+
+    public bool IsTransactionActive(Transaction transaction)
     {
-        private readonly ConcurrentDictionary<Transaction, bool> _transactions = new();
+        ArgumentNullException.ThrowIfNull(transaction);
 
-        public bool IsTransactionActive(Transaction transaction)
-        {
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+        return _transactions.ContainsKey(transaction);
+    }
 
-            return _transactions.ContainsKey(transaction);
-        }
+    public void AddTransaction(Transaction transaction)
+    {
+        ArgumentNullException.ThrowIfNull(transaction);
 
-        public void AddTransaction(Transaction transaction)
-        {
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
+        _transactions.TryAdd(transaction, true);
+    }
 
-            _transactions.TryAdd(transaction, true);
-        }
+    public void RemoveTransaction(Transaction transaction)
+    {
+        ArgumentNullException.ThrowIfNull(transaction);
 
-        public void RemoveTransaction(Transaction transaction)
-        {
-            if (transaction is null)
-                throw new ArgumentNullException(nameof(transaction));
-
-            _transactions.TryRemove(transaction, out _);
-        }
+        _transactions.TryRemove(transaction, out _);
     }
 }

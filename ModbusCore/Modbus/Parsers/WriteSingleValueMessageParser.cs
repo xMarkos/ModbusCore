@@ -1,26 +1,29 @@
 ﻿using System;
 using ModbusCore.Messages;
 
-namespace ModbusCore.Parsers
+namespace ModbusCore.Parsers;
+
+public class WriteSingleValueMessageParser : IMessageParser
 {
-    public class WriteSingleValueMessageParser : IMessageParser
+    public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
     {
-        public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
-            => CanHandle((ModbusFunctionCode)buffer[1], type);
+        return type
+                is ModbusMessageType.Request
+                or ModbusMessageType.Response
+            && (ModbusFunctionCode)buffer[1]
+                is ModbusFunctionCode.WriteSingleCoil
+                or ModbusFunctionCode.WriteSingleHoldingRegister;
+    }
 
-        public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
-            => type is ModbusMessageType.Request or ModbusMessageType.Response && function is ModbusFunctionCode.WriteSingleCoil or ModbusFunctionCode.WriteSingleHoldingRegister;
+    public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
+    {
+        length = 6;
+        return true;
+    }
 
-        public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
-        {
-            length = 6;
-            return true;
-        }
-
-        public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
-        {
-            int length = this.ValidateParse(buffer, type);
-            return new WriteSingleValueMessage(buffer[..length], type);
-        }
+    public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+    {
+        int length = this.ValidateParse(buffer, type);
+        return new WriteSingleValueMessage(buffer[..length], type);
     }
 }

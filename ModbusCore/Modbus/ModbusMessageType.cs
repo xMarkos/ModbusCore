@@ -1,9 +1,8 @@
-﻿namespace ModbusCore
+﻿namespace ModbusCore;
+
+public enum ModbusMessageType
 {
-    public enum ModbusMessageType
-    {
-        Unknown = 0,
-        Request,
-        Response,
-    }
+    Unknown = 0,
+    Request,
+    Response,
 }

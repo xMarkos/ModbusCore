@@ -1,7 +1,6 @@
-﻿namespace ModbusCore
+﻿namespace ModbusCore;
+
+public interface IMessagingContext
 {
-    public interface IMessagingContext
-    {
-        bool IsTransactionActive(Transaction transaction);
-    }
+    bool IsTransactionActive(Transaction transaction);
 }

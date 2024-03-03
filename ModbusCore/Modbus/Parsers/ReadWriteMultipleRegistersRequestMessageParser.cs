@@ -1,44 +1,40 @@
 ﻿using System;
 using ModbusCore.Messages;
 
-namespace ModbusCore.Parsers
+namespace ModbusCore.Parsers;
+
+public class ReadWriteMultipleRegistersRequestMessageParser : IMessageParser
 {
-    public class ReadWriteMultipleRegistersRequestMessageParser : IMessageParser
+    public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+        => type is ModbusMessageType.Request && (ModbusFunctionCode)buffer[1] is ModbusFunctionCode.ReadWriteMultipleRegisters;
+
+    public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
     {
-        public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
-            => CanHandle((ModbusFunctionCode)buffer[1], type);
-
-        public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
-            => type is ModbusMessageType.Request && function is ModbusFunctionCode.ReadWriteMultipleRegisters;
-
-        public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
+        if (buffer.Length < 11)
         {
-            if (buffer.Length < 11)
-            {
-                length = 11;
-                return false;
-            }
-
-            length = buffer[10] + 11;
-            return true;
+            length = 11;
+            return false;
         }
 
-        public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
-        {
-            int length = this.ValidateParse(buffer, type);
+        length = buffer[10] + 11;
+        return true;
+    }
 
-            /*
-             1: address of slave
-             1: function
-             2: start read register (register num - 1)
-             2: count of read registers
-             2: start write register (register num - 1)
-             2: count of write registers
-             1: length of write data (count of write registers * 2)
-             n: data
-             */
+    public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+    {
+        int length = this.ValidateParse(buffer, type);
 
-            return new ReadWriteMultipleRegistersRequestMessage(buffer[..length]);
-        }
+        /*
+         1: address of slave
+         1: function
+         2: start read register (register num - 1)
+         2: count of read registers
+         2: start write register (register num - 1)
+         2: count of write registers
+         1: length of write data (count of write registers * 2)
+         n: data
+         */
+
+        return new ReadWriteMultipleRegistersRequestMessage(buffer[..length]);
     }
 }

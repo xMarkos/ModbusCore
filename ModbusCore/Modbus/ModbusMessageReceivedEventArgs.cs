@@ -1,14 +1,8 @@
 ﻿using System;
 
-namespace ModbusCore
-{
-    public class ModbusMessageReceivedEventArgs
-    {
-        public IModbusMessage Message { get; }
+namespace ModbusCore;
 
-        public ModbusMessageReceivedEventArgs(IModbusMessage message)
-        {
-            Message = message ?? throw new ArgumentNullException(nameof(message));
-        }
-    }
+public class ModbusMessageReceivedEventArgs(IModbusMessage message)
+{
+    public IModbusMessage Message { get; } = message ?? throw new ArgumentNullException(nameof(message));
 }

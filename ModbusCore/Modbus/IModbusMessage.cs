@@ -1,14 +1,13 @@
 ﻿using System;
 
-namespace ModbusCore
+namespace ModbusCore;
+
+public interface IModbusMessage
 {
-    public interface IModbusMessage
-    {
-        public ModbusMessageType Type { get; }
+    public ModbusMessageType Type { get; }
 
-        public byte Address { get; }
-        public ModbusFunctionCode Function { get; }
+    public byte Address { get; }
+    public ModbusFunctionCode Function { get; }
 
-        public bool TryWriteTo(Span<byte> buffer, out int length);
-    }
+    public bool TryWriteTo(Span<byte> buffer, out int length);
 }

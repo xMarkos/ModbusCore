@@ -1,82 +1,80 @@
 ﻿using System;
 using System.Text;
 
-namespace ModbusCore.Messages
+namespace ModbusCore.Messages;
+
+/// <summary>
+/// Modbus message representing request for function codes:
+/// <list type="bullet">
+/// <item><see cref="ModbusFunctionCode.WriteMultipleHoldingRegisters"/></item>
+/// </list>
+/// </summary>
+public record WriteMultipleRegistersRequestMessage : MessageBase
 {
-    /// <summary>
-    /// Modbus message representing request for function codes:
-    /// <list type="bullet">
-    /// <item><see cref="ModbusFunctionCode.WriteMultipleHoldingRegisters"/></item>
-    /// </list>
-    /// </summary>
-    public record WriteMultipleRegistersRequestMessage : MessageBase
+    public ushort Register { get; init; }
+
+    public ushort Count => checked((byte)Data.Length);
+    public byte DataLength => checked((byte)(Data.Length * 2));
+
+    private readonly short[] _data = null!;
+    public short[] Data
     {
-        public ushort Register { get; init; }
+        get => _data;
+        init => _data = value ?? [];
+    }
 
-        public ushort Count => checked((byte)Data.Length);
-        public byte DataLength => checked((byte)(Data.Length * 2));
+    public WriteMultipleRegistersRequestMessage() : base(ModbusMessageType.Request) { }
 
-        private readonly short[] _data = null!;
-        public short[] Data
-        {
-            get => _data;
-            init => _data = value ?? Array.Empty<short>();
-        }
+    public WriteMultipleRegistersRequestMessage(ReadOnlySpan<byte> buffer)
+        : base(buffer, ModbusMessageType.Request)
+    {
+        if (buffer.Length < 7)
+            throw new ArgumentException("The buffer must be at least 7 bytes long", nameof(buffer));
 
-        public WriteMultipleRegistersRequestMessage() : base(ModbusMessageType.Request) { }
+        Register = ModbusUtility.ReadUInt16(buffer[2..]);
 
-        public WriteMultipleRegistersRequestMessage(ReadOnlySpan<byte> buffer)
-            : base(buffer, ModbusMessageType.Request)
-        {
-            if (buffer.Length < 7)
-                throw new ArgumentException("The buffer must be at least 7 bytes long", nameof(buffer));
+        ushort count = ModbusUtility.ReadUInt16(buffer[4..]);
 
-            Register = ModbusUtility.ReadUInt16(buffer[2..]);
+        byte length = buffer[6];
+        if (length % 2 != 0)
+            throw new FormatException("DataLength is not multiple of 2");
 
-            ushort count = ModbusUtility.ReadUInt16(buffer[4..]);
+        if (length != count * 2)
+            throw new ArgumentException("The Count and DataLength does not match", nameof(buffer));
 
-            byte length = buffer[6];
-            if (length % 2 != 0)
-                throw new FormatException("DataLength is not multiple of 2");
+        if (buffer.Length < length + 7)
+            throw new FormatException("Unexpected end of data");
 
-            if (length != count * 2)
-                throw new ArgumentException("The Count and DataLength does not match", nameof(buffer));
+        Data = new short[count];
+        ModbusUtility.ReadRegisters(buffer[7..], Data.Length, Data);
+    }
 
-            if (buffer.Length < length + 7)
-                throw new FormatException("Unexpected end of data");
+    public override bool TryWriteTo(Span<byte> buffer, out int length)
+    {
+        base.TryWriteTo(buffer, out length);
+        length += 5 + DataLength;
 
-            Data = new short[count];
-            ModbusUtility.ReadRegisters(buffer[7..], Data.Length, Data);
-        }
+        if (buffer.Length < length)
+            return false;
 
-        public override bool TryWriteTo(Span<byte> buffer, out int length)
-        {
-            base.TryWriteTo(buffer, out length);
-            length += 5 + DataLength;
+        ModbusUtility.Write(buffer[2..], Register);
+        ModbusUtility.Write(buffer[4..], Count);
+        ModbusUtility.Write(buffer[6..], DataLength);
+        ModbusUtility.WriteRegisters(buffer[7..], Data, Count);
+        return true;
+    }
 
-            if (buffer.Length < length)
-                return false;
+    protected override bool PrintMembers(StringBuilder builder)
+    {
+        ArgumentNullException.ThrowIfNull(builder);
 
-            ModbusUtility.Write(buffer[2..], Register);
-            ModbusUtility.Write(buffer[4..], Count);
-            ModbusUtility.Write(buffer[6..], DataLength);
-            ModbusUtility.WriteRegisters(buffer[7..], Data, Count);
-            return true;
-        }
+        if (base.PrintMembers(builder))
+            builder.Append(", ");
 
-        protected override bool PrintMembers(StringBuilder builder)
-        {
-            if (builder is null)
-                throw new ArgumentNullException(nameof(builder));
+        builder.AppendFormat("{0} = {1}, ", nameof(Register), Register);
+        builder.AppendFormat("{0} = {1}, ", nameof(Count), Count);
+        builder.AppendFormat("{0} = {1}", nameof(DataLength), DataLength);
 
-            if (base.PrintMembers(builder))
-                builder.Append(", ");
-
-            builder.AppendFormat("{0} = {1}, ", nameof(Register), Register);
-            builder.AppendFormat("{0} = {1}, ", nameof(Count), Count);
-            builder.AppendFormat("{0} = {1}", nameof(DataLength), DataLength);
-
-            return true;
-        }
+        return true;
     }
 }

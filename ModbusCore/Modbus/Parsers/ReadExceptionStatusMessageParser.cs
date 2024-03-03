@@ -1,38 +1,34 @@
 ﻿using System;
 using ModbusCore.Messages;
 
-namespace ModbusCore.Parsers
+namespace ModbusCore.Parsers;
+
+public class ReadExceptionStatusMessageParser : IMessageParser
 {
-    public class ReadExceptionStatusMessageParser : IMessageParser
+    public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+        => (ModbusFunctionCode)buffer[1] == ModbusFunctionCode.ReadExceptionStatus;
+
+    public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
     {
-        public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
-            => CanHandle((ModbusFunctionCode)buffer[1], type);
-
-        public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
-            => function == ModbusFunctionCode.ReadExceptionStatus;
-
-        public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
+        length = type switch
         {
-            length = type switch
-            {
-                ModbusMessageType.Request => 2,
-                ModbusMessageType.Response => 3,
-                _ => throw new NotSupportedException(),
-            };
+            ModbusMessageType.Request => 2,
+            ModbusMessageType.Response => 3,
+            _ => throw new NotSupportedException(),
+        };
 
-            return true;
-        }
+        return true;
+    }
 
-        public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+    public IModbusMessage Parse(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+    {
+        int length = this.ValidateParse(buffer, type);
+
+        return type switch
         {
-            int length = this.ValidateParse(buffer, type);
-
-            return type switch
-            {
-                ModbusMessageType.Request => new ReadExceptionStatusRequestMessage(buffer[..length]),
-                ModbusMessageType.Response => new ReadExceptionStatusResponseMessage(buffer[..length]),
-                _ => throw new NotSupportedException(),
-            };
-        }
+            ModbusMessageType.Request => new ReadExceptionStatusRequestMessage(buffer[..length]),
+            ModbusMessageType.Response => new ReadExceptionStatusResponseMessage(buffer[..length]),
+            _ => throw new NotSupportedException(),
+        };
     }
 }

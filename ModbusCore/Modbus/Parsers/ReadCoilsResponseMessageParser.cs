@@ -5,6 +5,9 @@ namespace ModbusCore.Parsers
 {
     public class ReadCoilsResponseMessageParser : IMessageParser
     {
+        public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+            => CanHandle((ModbusFunctionCode)buffer[1], type);
+
         public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
             => type == ModbusMessageType.Response && function is ModbusFunctionCode.ReadCoils or ModbusFunctionCode.ReadDiscreteInputs;
 

@@ -143,6 +143,7 @@ namespace ModbusCore.Devices
 
                         _state = State.Receiving;
 
+                        // Smallest possible modbus frame is 4: [Unit][Function][CRC16]
                         ReadData(4);
 
                         // Read information necessary to obtain the length of the frame

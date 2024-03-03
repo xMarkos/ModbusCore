@@ -3,11 +3,22 @@ using ModbusCore.Messages;
 
 namespace ModbusCore.Parsers
 {
-    // TODO critical design flaw disallows us to have separate parsers for each MEI type (we can't make the decision in CanHandle without seeing additional byte)
     public class ReadDeviceIdentificationMessageParser : IMessageParser
     {
-        public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
-            => type is ModbusMessageType.Request or ModbusMessageType.Response && function is ModbusFunctionCode.EncapsulatedInterfaceTransport;
+        public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+        {
+            if ((ModbusFunctionCode)buffer[1] != ModbusFunctionCode.EncapsulatedInterfaceTransport)
+                return false;
+
+            // Getting an extra byte works thanks to the fact that we are reading 4 bytes into the buffer
+            if (buffer.Length < 3)
+                throw new ArgumentOutOfRangeException(nameof(buffer), "Buffer must provide at least 3 bytes.");
+
+            if (buffer[2] != ReadDeviceIdentificationRequestMessage.ReadDeviceIdentificationMeiType)
+                return false;
+
+            return type is ModbusMessageType.Request or ModbusMessageType.Response;
+        }
 
         public bool TryGetFrameLength(ReadOnlySpan<byte> buffer, ModbusMessageType type, out int length)
         {

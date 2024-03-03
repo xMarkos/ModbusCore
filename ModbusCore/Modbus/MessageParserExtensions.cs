@@ -9,7 +9,7 @@ namespace ModbusCore
             if (buffer.Length < 2)
                 throw new ArgumentException(null, nameof(buffer));
 
-            if (!parser.CanHandle(buffer[1], type))
+            if (!parser.CanHandle(buffer, type))
                 throw new NotSupportedException();
 
             if (!parser.TryGetFrameLength(buffer, type, out int length) || buffer.Length < length)
@@ -17,8 +17,5 @@ namespace ModbusCore
 
             return length;
         }
-
-        public static bool CanHandle(this IMessageParser parser, byte function, ModbusMessageType type)
-            => parser.CanHandle((ModbusFunctionCode)function, type);
     }
 }

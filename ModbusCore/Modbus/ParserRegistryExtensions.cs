@@ -11,11 +11,9 @@ namespace ModbusCore
             if (registry is null)
                 throw new ArgumentNullException(nameof(registry));
 
-            byte function = buffer[1];
-
             foreach (IMessageParser parser in registry)
             {
-                if (parser.CanHandle(function, type))
+                if (parser.CanHandle(buffer, type))
                 {
                     result = parser;
                     return true;

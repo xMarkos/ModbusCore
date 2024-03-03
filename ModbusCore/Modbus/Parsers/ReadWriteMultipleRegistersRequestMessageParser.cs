@@ -5,6 +5,9 @@ namespace ModbusCore.Parsers
 {
     public class ReadWriteMultipleRegistersRequestMessageParser : IMessageParser
     {
+        public bool CanHandle(ReadOnlySpan<byte> buffer, ModbusMessageType type)
+            => CanHandle((ModbusFunctionCode)buffer[1], type);
+
         public bool CanHandle(ModbusFunctionCode function, ModbusMessageType type)
             => type is ModbusMessageType.Request && function is ModbusFunctionCode.ReadWriteMultipleRegisters;
 
